@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0d0b12">
-<title>Vela · stream & download</title>
+<title>Vela · free films, free to watch</title>
 <style>
   :root{
-    --bg-0:#0d0b12; --bg-1:#141119; --glass:rgba(20,17,25,.62); --glass-hi:rgba(27,23,35,.85);
+    --bg-0:#0d0b12; --bg-1:#141119;
+    --glass:rgba(20,17,25,.62); --glass-hi:rgba(27,23,35,.85);
     --stroke:rgba(255,255,255,.07); --stroke-hi:rgba(255,255,255,.13);
     --text:#fff; --text-2:rgba(255,255,255,.68); --muted:rgba(255,255,255,.42); --dim:rgba(255,255,255,.20);
     --a1:#6366f1; --a2:#8b5cf6; --a3:#f43f5e;
@@ -24,15 +25,46 @@
   body{min-height:100vh;background:var(--bg-0);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding:var(--pad);}
   body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse 55% 45% at 15% 0%,rgba(99,102,241,.14),transparent 60%),radial-gradient(ellipse 45% 45% at 85% 100%,rgba(244,63,94,.10),transparent 60%),radial-gradient(circle at 20% 10%,#1a1524 0%,#0d0b12 70%);}
   body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.85;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");}
+  body.modal-open{overflow:hidden;position:fixed;width:100%;}
   button{font-family:inherit;} img{display:block;max-width:100%;}
   :focus-visible{outline:2px solid var(--a2);outline-offset:3px;border-radius:6px;}
   .wrap{max-width:1200px;margin:0 auto;}
-  .brand{display:flex;align-items:center;gap:14px;margin-bottom:30px;animation:fadeUp .5s var(--ease-soft) both;}
+
+  /* ---------- BRAND ---------- */
+  .brand{display:flex;align-items:center;gap:14px;margin-bottom:22px;animation:fadeUp .5s var(--ease-soft) both;}
   .brand-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:var(--a-grad);box-shadow:var(--shadow-glow);animation:pulseGlow 3.4s ease-in-out infinite;}
   @keyframes pulseGlow{0%,100%{box-shadow:0 10px 26px -8px rgba(139,92,246,.6);}50%{box-shadow:0 10px 42px 0px rgba(244,63,94,.45);}}
   .brand h1{font-size:var(--title);font-weight:700;letter-spacing:-.6px;background:linear-gradient(135deg,#fff,#e9d5ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
   .brand .tag{margin-left:auto;font-size:11.5px;letter-spacing:.5px;color:var(--dim);font-weight:500;text-transform:uppercase;}
-  .search-shell{width:100%;background:var(--glass);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid var(--stroke);border-radius:60px;padding:6px 6px 6px 22px;display:flex;align-items:center;gap:12px;transition:border-color .25s,box-shadow .25s,background .25s;margin-bottom:14px;animation:fadeUp .5s var(--ease-soft) .05s both;}
+
+  /* ---------- HERO / ONBOARDING ---------- */
+  .hero{
+    display:grid;grid-template-columns:1fr;gap:18px;
+    margin-bottom:26px;padding:26px;border-radius:var(--radius-xl);
+    background:linear-gradient(135deg,rgba(99,102,241,.10),rgba(244,63,94,.06));
+    border:1px solid rgba(139,92,246,.20);
+    animation:fadeUp .5s var(--ease-soft) .05s both;
+  }
+  .hero h2{font-size:22px;font-weight:600;line-height:1.3;letter-spacing:-.3px;}
+  .hero h2 strong{background:linear-gradient(135deg,#c4b5fd,#fda4af);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .hero p{font-size:14px;color:var(--text-2);line-height:1.65;max-width:640px;}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:6px;}
+  .step{
+    display:flex;align-items:flex-start;gap:12px;
+    padding:14px;border-radius:var(--radius-md);
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .step-num{
+    flex:0 0 auto;width:28px;height:28px;border-radius:50%;
+    display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;
+    background:var(--a-grad);box-shadow:0 4px 10px -4px rgba(139,92,246,.5);
+  }
+  .step-text{font-size:13px;color:var(--text);line-height:1.5;}
+  .step-text small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+  /* ---------- SEARCH ---------- */
+  .search-shell{width:100%;background:var(--glass);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid var(--stroke);border-radius:60px;padding:6px 6px 6px 22px;display:flex;align-items:center;gap:12px;transition:border-color .25s,box-shadow .25s,background .25s;margin-bottom:14px;animation:fadeUp .5s var(--ease-soft) .1s both;}
   .search-shell:focus-within{border-color:rgba(139,92,246,.55);background:var(--glass-hi);box-shadow:0 0 0 4px rgba(139,92,246,.10),0 24px 60px -20px rgba(139,92,246,.35);}
   .search-shell svg{flex:0 0 auto;width:20px;height:20px;stroke:var(--muted);transition:stroke .2s;}
   .search-shell:focus-within svg{stroke:var(--a2);}
@@ -45,61 +77,129 @@
   .search-submit:hover{transform:translateY(-1px);filter:brightness(1.08);box-shadow:0 14px 34px -8px rgba(139,92,246,.7);}
   .search-submit:active{transform:translateY(0);}
   .search-submit:disabled{opacity:.55;cursor:not-allowed;transform:none;filter:none;}
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 28px;animation:fadeUp .5s var(--ease-soft) .1s both;}
-  .chip{font-size:12px;font-weight:500;letter-spacing:.3px;padding:8px 15px;border-radius:40px;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.6);transition:all .22s var(--ease-soft);}
-  .chip:hover{color:var(--text);border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.10);transform:translateY(-1px);}
-  .chip.active{color:#fff;border-color:transparent;background:var(--a-grad);box-shadow:0 6px 18px -6px rgba(139,92,246,.6);}
-  .status{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);font-weight:300;letter-spacing:.2px;min-height:18px;margin-bottom:22px;animation:fadeUp .5s var(--ease-soft) .15s both;}
+
+  /* ---------- QUICK EXAMPLES ---------- */
+  .examples{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    margin:0 0 26px;animation:fadeUp .5s var(--ease-soft) .15s both;
+  }
+  .examples > span{font-size:11.5px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;font-weight:600;margin-right:4px;}
+  .ex{font-size:12.5px;font-weight:500;padding:7px 14px;border-radius:40px;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--muted);transition:all .2s var(--ease-soft);}
+  .ex:hover{color:var(--text);border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.10);transform:translateY(-1px);}
+  .ex:active{transform:translateY(0);}
+
+  /* ---------- CATEGORIES ---------- */
+  .cats{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px;animation:fadeUp .5s var(--ease-soft) .2s both;}
+  .cat{font-size:12.5px;font-weight:500;letter-spacing:.3px;padding:9px 16px;border-radius:40px;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.6);transition:all .22s var(--ease-soft);}
+  .cat:hover{color:var(--text);border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.10);transform:translateY(-1px);}
+  .cat.active{color:#fff;border-color:transparent;background:var(--a-grad);box-shadow:0 6px 18px -6px rgba(139,92,246,.6);}
+
+  /* ---------- STATUS ---------- */
+  .status{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);font-weight:300;letter-spacing:.2px;min-height:18px;margin-bottom:20px;animation:fadeUp .5s var(--ease-soft) .25s both;}
   .dot{width:6px;height:6px;border-radius:50%;background:var(--a2);box-shadow:0 0 10px var(--a2);flex:0 0 auto;animation:blink 1.8s infinite;}
   .dot.loading{background:var(--a3);box-shadow:0 0 12px var(--a3);}
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
-  .section-title{font-size:13px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin:8px 0 18px;display:flex;align-items:center;gap:12px;}
+
+  .section-title{font-size:13.5px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin:8px 0 6px;display:flex;align-items:center;gap:12px;}
   .section-title::after{content:"";flex:1 1 auto;height:1px;background:rgba(255,255,255,.06);}
+  .section-sub{font-size:12.5px;color:var(--dim);margin-bottom:18px;}
+
+  /* ---------- GRID / CARDS ---------- */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--grid-min),1fr));gap:var(--grid-gap);}
   .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:transform .35s var(--ease-out),border-color .3s,box-shadow .4s,background .3s;animation:cardEnter .55s var(--ease-out) backwards;position:relative;}
   @keyframes cardEnter{from{opacity:0;transform:translateY(16px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
   .card:hover{transform:translateY(-6px) scale(1.02);border-color:rgba(139,92,246,.4);background:rgba(255,255,255,.05);box-shadow:0 28px 44px -22px rgba(139,92,246,.45);}
   .poster{aspect-ratio:2/3;position:relative;overflow:hidden;background:linear-gradient(145deg,#1e1a2b,#0f0c15);display:grid;place-items:center;color:var(--dim);font-size:42px;font-weight:700;}
   .poster img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease-soft);}
-  .card:hover .poster img{transform:scale(1.06);}
-  .poster::after{content:"▶";position:absolute;font-size:30px;color:#fff;opacity:0;transform:scale(.7);transition:opacity .25s,transform .25s;text-shadow:0 3px 14px rgba(0,0,0,.9);pointer-events:none;}
-  .card:hover .poster::after{opacity:1;transform:scale(1);}
-  .card-body{padding:13px 15px 15px;display:flex;flex-direction:column;gap:5px;flex:1;}
-  .title{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .card:hover .poster img{transform:scale(1.05);}
+
+  /* action badges — ALWAYS visible, not just hover */
+  .badges{
+    position:absolute;left:8px;right:8px;bottom:8px;
+    display:flex;gap:6px;pointer-events:none;
+    opacity:1;
+  }
+  .badge{
+    font-size:10.5px;font-weight:600;letter-spacing:.3px;
+    padding:5px 10px;border-radius:20px;
+    display:inline-flex;align-items:center;gap:4px;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    background:rgba(0,0,0,.55);color:#fff;
+    border:1px solid rgba(255,255,255,.15);
+  }
+  .badge.play{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.7);}
+  .badge.dl{border-color:rgba(244,63,94,.5);background:rgba(244,63,94,.7);}
+  .card:hover .badge{transform:translateY(-1px);transition:transform .2s;}
+
+  .card-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;flex:1;}
+  .title{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
   .meta{font-size:11px;color:var(--dim);display:flex;gap:6px;margin-top:2px;font-weight:400;}
+  .card-cta{font-size:11.5px;color:#c4b5fd;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:4px;}
+  .card-cta::after{content:"→";transition:transform .2s;}
+  .card:hover .card-cta::after{transform:translateX(3px);}
+
+  /* ---------- SKELETONS ---------- */
   .skel{border-radius:var(--radius-lg);overflow:hidden;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);}
   .skel-poster{aspect-ratio:2/3;background:linear-gradient(100deg,#181421 20%,#211b2d 40%,#181421 60%);background-size:300% 100%;animation:shimmer 1.4s infinite;}
   .skel-body{padding:13px 15px 18px;}
   .skel-line{height:10px;border-radius:4px;margin-bottom:8px;background:linear-gradient(100deg,#181421 20%,#211b2d 40%,#181421 60%);background-size:300% 100%;animation:shimmer 1.4s infinite;}
   .skel-line.short{width:60%;}
   @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
+
+  /* ---------- EMPTY ---------- */
   .empty{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--dim);font-size:14px;letter-spacing:.3px;line-height:1.7;}
   .empty .emoji{font-size:44px;display:block;margin-bottom:16px;opacity:.7;}
   .empty strong{color:var(--text-2);font-weight:500;display:block;margin-bottom:8px;font-size:15px;}
-  .modal{position:fixed;inset:0;background:rgba(6,5,10,.85);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .3s var(--ease-soft);z-index:100;}
+  .empty .suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+  .empty .suggestions button{background:rgba(139,92,246,.10);border:1px solid rgba(139,92,246,.3);color:#c4b5fd;font-size:12.5px;padding:8px 16px;border-radius:40px;cursor:pointer;transition:all .2s;}
+  .empty .suggestions button:hover{background:rgba(139,92,246,.20);color:#fff;}
+
+  /* ---------- LOAD MORE / BACK TOP ---------- */
+  .load-more{grid-column:1/-1;text-align:center;margin-top:14px;}
+  .load-more button{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);color:var(--text);padding:12px 28px;border-radius:60px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+  .load-more button:hover{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.4);}
+  .load-more button:disabled{opacity:.5;cursor:wait;}
+  .back-top{position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:50%;background:var(--a-grad);border:none;color:#fff;cursor:pointer;font-size:20px;display:grid;place-items:center;box-shadow:var(--shadow-glow);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;transform:translateY(20px);z-index:60;}
+  .back-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+
+  /* ---------- MODAL ---------- */
+  .modal{position:fixed;inset:0;background:rgba(6,5,10,.88);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .3s var(--ease-soft);z-index:100;}
   .modal.open{opacity:1;pointer-events:all;}
-  .modal-box{width:100%;max-width:880px;background:var(--bg-1);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-xl);transform:scale(.94) translateY(10px);transition:transform .35s var(--ease-out);box-shadow:var(--shadow-lg);margin:auto;overflow:hidden;}
+  .modal-box{width:100%;max-width:900px;background:var(--bg-1);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-xl);transform:scale(.94) translateY(10px);transition:transform .35s var(--ease-out);box-shadow:var(--shadow-lg);margin:auto;overflow:hidden;}
   .modal.open .modal-box{transform:scale(1) translateY(0);}
-  .modal-head{display:flex;gap:18px;padding:24px 26px 18px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,.06);position:relative;}
+
+  .modal-head{display:flex;gap:18px;padding:22px 26px 16px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,.06);}
   .modal-head .m-info{flex:1 1 auto;min-width:0;}
   .modal-head h2{font-size:19px;font-weight:600;line-height:1.3;margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .modal-head p{font-size:12.5px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
   .btn-close{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.6);cursor:pointer;font-size:17px;line-height:1;display:grid;place-items:center;transition:background .2s,color .2s,transform .2s;}
   .btn-close:hover{background:rgba(255,255,255,.14);color:var(--text);transform:rotate(90deg);}
-  .player-wrap{margin:20px 26px 0;border-radius:var(--radius-lg);overflow:hidden;background:#050408;border:1px solid rgba(255,255,255,.06);position:relative;aspect-ratio:16/9;display:grid;place-items:center;}
+
+  /* inline "how to use this" guide inside modal */
+  .m-guide{
+    display:grid;grid-template-columns:1fr;gap:10px;
+    padding:14px 26px;background:rgba(139,92,246,.06);
+    border-bottom:1px solid rgba(139,92,246,.15);
+  }
+  .m-guide .g-step{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-2);line-height:1.5;}
+  .g-num{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--a-grad);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;}
+
+  .player-wrap{margin:18px 26px 0;border-radius:var(--radius-lg);overflow:hidden;background:#050408;border:1px solid rgba(255,255,255,.06);position:relative;aspect-ratio:16/9;display:grid;place-items:center;}
   .player-wrap audio{width:100%;padding:26px;aspect-ratio:auto;}
   .player-wrap video{width:100%;height:100%;object-fit:contain;background:#050408;display:block;}
-  .player-fallback{padding:40px 24px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7;max-width:460px;}
+  .player-fallback{padding:36px 24px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7;max-width:460px;}
   .player-fallback .emoji{font-size:36px;display:block;margin-bottom:10px;opacity:.6;}
   .player-fallback strong{display:block;color:var(--text-2);font-weight:500;font-size:14px;margin-bottom:6px;}
+
   .source-bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 26px 0;}
   .source-pill{font-size:11.5px;font-weight:500;letter-spacing:.3px;padding:8px 14px;border-radius:40px;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--muted);transition:all .22s var(--ease-soft);white-space:nowrap;}
   .source-pill:hover{color:var(--text);border-color:rgba(139,92,246,.4);}
   .source-pill.active{color:#fff;border-color:transparent;background:var(--a-grad);box-shadow:0 6px 16px -6px rgba(139,92,246,.55);}
-  .modal-body{padding:22px 26px 28px;}
-  .modal-body h3{font-size:11.5px;font-weight:600;letter-spacing:.7px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+
+  .modal-body{padding:20px 26px 26px;}
+  .modal-body h3{font-size:11.5px;font-weight:600;letter-spacing:.7px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
   .modal-body h3::after{content:"";flex:1 1 auto;height:1px;background:rgba(255,255,255,.06);}
-  .files{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding-right:4px;}
+  .files{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;padding-right:4px;}
   .files::-webkit-scrollbar{width:6px;}
   .files::-webkit-scrollbar-track{background:transparent;}
   .files::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
@@ -111,32 +211,49 @@
   .file-size{font-size:11px;color:var(--dim);}
   .file-actions{flex:0 0 auto;display:flex;gap:6px;}
   .file-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--muted);padding:8px 14px;border-radius:40px;font-size:11.5px;font-weight:500;cursor:pointer;text-decoration:none;transition:all .2s var(--ease-soft);display:inline-flex;align-items:center;gap:5px;font-family:inherit;}
-  .file-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2);transform:translateY(-1px);}
+  .file-btn:hover:not(:disabled){color:var(--text);border-color:rgba(255,255,255,.2);transform:translateY(-1px);}
+  .file-btn:disabled{opacity:.35;cursor:not-allowed;}
   .file-btn.primary{background:rgba(244,63,94,.14);color:#fda4af;border-color:rgba(244,63,94,.3);}
   .file-btn.primary:hover{background:rgba(244,63,94,.24);color:#fff;box-shadow:0 6px 14px -6px rgba(244,63,94,.6);}
   .file-btn.active-play{background:rgba(139,92,246,.18);color:#ddd6fe;border-color:rgba(139,92,246,.4);}
-  .hint{font-size:12px;color:var(--dim);padding:16px 0 2px;line-height:1.7;}
+  .hint{font-size:12px;color:var(--dim);padding:14px 0 2px;line-height:1.7;}
+
+  /* ---------- TOASTS ---------- */
   .toasts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none;width:max-content;max-width:calc(100% - 40px);}
   .toast{pointer-events:auto;display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--glass-hi);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--stroke-hi);border-radius:14px;font-size:13px;color:var(--text);box-shadow:0 20px 40px -12px rgba(0,0,0,.7);animation:toastIn .4s var(--ease-out) both;}
   .toast.out{animation:toastOut .3s var(--ease-soft) forwards;}
-  .toast .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;flex:0 0 auto;background:var(--a-grad-soft);color:#c4b5fd;}
+  .toast .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;flex:0 0 auto;background:rgba(139,92,246,.16);color:#c4b5fd;}
   .toast.error .ic{background:rgba(255,107,129,.15);color:var(--danger);}
   @keyframes toastIn{from{opacity:0;transform:translateY(12px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
   @keyframes toastOut{to{opacity:0;transform:translateY(12px) scale(.96);}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-  @media (min-width:1100px){:root{--pad:40px 40px 100px;--grid-min:200px;--grid-gap:24px;--title:26px;}.wrap{max-width:1320px;}.brand{margin-bottom:36px;}}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (min-width:1100px){:root{--pad:40px 40px 100px;--grid-min:200px;--grid-gap:24px;--title:26px;}.wrap{max-width:1320px;}.brand{margin-bottom:26px;}}
   @media (min-width:640px) and (max-width:1099px){:root{--pad:28px 28px 80px;--grid-min:220px;--grid-gap:20px;--title:24px;}.wrap{max-width:960px;}.modal-box{max-width:760px;}}
-  @media (max-width:639px){:root{--pad:20px 14px calc(96px + env(safe-area-inset-bottom,0px));--grid-min:140px;--grid-gap:12px;--title:20px;}.brand{margin-bottom:20px;}.brand .tag{display:none;}
+  @media (max-width:639px){:root{--pad:20px 14px calc(110px + env(safe-area-inset-bottom,0px));--grid-min:140px;--grid-gap:12px;--title:20px;}
+    .brand{margin-bottom:16px;}.brand .tag{display:none;}
+    .hero{padding:20px;gap:14px;margin-bottom:20px;}
+    .hero h2{font-size:18px;}
+    .hero p{font-size:13px;}
+    .steps{grid-template-columns:1fr;}
+    .step{padding:12px;}
     .search-shell{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:80;padding:6px 6px 6px 16px;box-shadow:0 24px 60px -12px rgba(0,0,0,.8),0 8px 24px -8px rgba(139,92,246,.5);margin:0;}
     .search-submit{padding:12px 18px;min-width:0;font-size:13px;}.search-input{font-size:16px;padding:12px 0;}
-    .chips{flex-wrap:nowrap;overflow-x:auto;margin-bottom:22px;padding-bottom:4px;-webkit-overflow-scrolling:touch;}.chips::-webkit-scrollbar{display:none;}.chip{flex:0 0 auto;}
+    .examples,.cats{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}.examples::-webkit-scrollbar,.cats::-webkit-scrollbar{display:none;}
+    .examples > span,.ex,.cat{flex:0 0 auto;}
     .card-body{padding:10px 12px 12px;}.title{font-size:12.5px;}.meta{font-size:10.5px;}
+    .badges{gap:4px;}
+    .badge{font-size:9.5px;padding:4px 8px;}
     .modal{padding:0;align-items:stretch;}.modal-box{border-radius:0;max-width:100%;min-height:100vh;border:none;}
     .modal-head{padding:18px 16px 14px;}.modal-head h2{font-size:16px;}
+    .m-guide{padding:12px 16px;}
     .player-wrap{margin:14px 16px 0;border-radius:var(--radius-md);}
     .source-bar{margin:12px 16px 0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;}.source-bar::-webkit-scrollbar{display:none;}.source-pill{flex:0 0 auto;}
     .modal-body{padding:16px 16px 24px;}.file-row{padding:10px 12px;gap:10px;flex-wrap:wrap;}.file-ext{width:38px;height:38px;font-size:10px;}.file-actions{width:100%;justify-content:flex-end;}
-    .toasts{bottom:calc(90px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 24px);}}
+    .toasts{bottom:calc(90px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 24px);}
+    .back-top{bottom:calc(100px + env(safe-area-inset-bottom,0px));right:16px;}}
+
   @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;animation-iteration-count:1 !important;}}
 </style>
 </head>
@@ -146,45 +263,82 @@
   <header class="brand">
     <div class="brand-icon" aria-hidden="true">🎬</div>
     <h1>Vela</h1>
-    <span class="tag">stream · download · public domain</span>
+    <span class="tag">free films · no signup</span>
   </header>
 
-  <form class="search-shell" id="searchForm" role="search" autocomplete="off" aria-label="Movie search">
+  <!-- HERO / ONBOARDING -->
+  <section class="hero" aria-label="How it works">
+    <h2>Watch <strong>thousands of classic films</strong> for free — no account needed.</h2>
+    <p>Search any film, actor, genre or decade. Pick a file. Stream it right here, or download it to keep. Everything is public domain and legally free.</p>
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">1</span>
+        <div class="step-text">Search any film<small>Type a title, actor or genre below</small></div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <div class="step-text">Tap a poster<small>It opens the film's page with files</small></div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <div class="step-text">Stream or download<small>Play in your browser, or save the file</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH -->
+  <form class="search-shell" id="searchForm" role="search" autocomplete="off">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <circle cx="11" cy="11" r="7"></circle>
       <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
     </svg>
-    <input type="text" class="search-input" id="searchInput" placeholder="Search films, actors, decades, anything…" aria-label="Search movies" spellcheck="false">
-    <button type="button" class="search-clear" id="searchClear" aria-label="Clear search">&times;</button>
+    <input type="text" class="search-input" id="searchInput" placeholder="Search by title, actor, genre, or decade…" aria-label="Search" spellcheck="false">
+    <button type="button" class="search-clear" id="searchClear" aria-label="Clear">&times;</button>
     <button type="submit" class="search-submit" id="searchSubmit">Search</button>
   </form>
 
-  <nav class="chips" id="chips" aria-label="Quick searches">
-    <button type="button" class="chip" data-q="nosferatu">Nosferatu</button>
-    <button type="button" class="chip" data-q="metropolis">Metropolis</button>
-    <button type="button" class="chip" data-q="chaplin">Chaplin</button>
-    <button type="button" class="chip" data-q="buster keaton">Buster Keaton</button>
-    <button type="button" class="chip" data-q="horror">Horror</button>
-    <button type="button" class="chip" data-q="cartoon">Cartoons</button>
-    <button type="button" class="chip" data-q="western">Westerns</button>
+  <!-- QUICK EXAMPLES -->
+  <div class="examples" id="examples" aria-label="Try searching for">
+    <span>Try</span>
+    <button type="button" class="ex" data-q="nosferatu">Nosferatu</button>
+    <button type="button" class="ex" data-q="chaplin">Charlie Chaplin</button>
+    <button type="button" class="ex" data-q="metropolis">Metropolis</button>
+    <button type="button" class="ex" data-q="horror">Horror</button>
+    <button type="button" class="ex" data-q="western">Westerns</button>
+    <button type="button" class="ex" data-q="cartoon">Cartoons</button>
+  </div>
+
+  <!-- CATEGORIES -->
+  <nav class="cats" id="cats" aria-label="Browse by category">
+    <button type="button" class="cat active" data-cat="">All</button>
+    <button type="button" class="cat" data-cat="feature_films">Feature films</button>
+    <button type="button" class="cat" data-cat="silent_films">Silent era</button>
+    <button type="button" class="cat" data-cat="animationandcartoons">Animation</button>
+    <button type="button" class="cat" data-cat="classic_tv">Classic TV</button>
+    <button type="button" class="cat" data-cat="short_films">Short films</button>
   </nav>
 
   <div class="status" role="status" aria-live="polite">
     <span class="dot" id="statusDot" aria-hidden="true"></span>
-    <span id="statusText">ready · search to begin</span>
+    <span id="statusText">ready · search or browse</span>
   </div>
 
   <section id="resultsSection" hidden>
     <div class="section-title" id="resultsTitle">Results</div>
+    <p class="section-sub" id="resultsSub">Tap any poster to see the film and its files.</p>
     <main class="grid" id="grid" aria-live="polite"></main>
   </section>
 
   <section id="recommendSection">
     <div class="section-title">Popular now</div>
+    <p class="section-sub">The most-watched free films this week — tap any to open it.</p>
     <div class="grid" id="recommendGrid"></div>
   </section>
 </div>
 
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<!-- MODAL -->
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" aria-hidden="true">
   <div class="modal-box">
     <div class="modal-head">
@@ -192,14 +346,21 @@
         <h2 id="mTitle">—</h2>
         <p id="mDesc">—</p>
       </div>
-      <button type="button" class="btn-close" id="mClose" aria-label="Close dialog">&times;</button>
+      <button type="button" class="btn-close" id="mClose" aria-label="Close">&times;</button>
     </div>
-    <div class="player-wrap" id="playerWrap" aria-label="Media player"></div>
-    <div class="source-bar" id="sourceBar" aria-label="Source quality"></div>
+
+    <!-- inline guide so first-timers know what to do -->
+    <div class="m-guide" aria-label="How to use this film page">
+      <div class="g-step"><span class="g-num">1</span><span>Pick a file below</span></div>
+      <div class="g-step"><span class="g-num">2</span><span>Tap <strong style="color:#c4b5fd">Stream</strong> to watch it here — or <strong style="color:#fda4af">Download</strong> to save it</span></div>
+    </div>
+
+    <div class="player-wrap" id="playerWrap" aria-label="Player"></div>
+    <div class="source-bar" id="sourceBar" aria-label="Sources"></div>
     <div class="modal-body">
-      <h3>All files — pick any to stream or download</h3>
+      <h3 id="filesTitle">Pick a file</h3>
       <div class="files" id="mFiles"></div>
-      <p class="hint">You decide: tap <strong>Stream</strong> on any file to play it here, or <strong>Download</strong> to save it.</p>
+      <p class="hint" id="mHint">Every file here is a legal copy from the Internet Archive.</p>
     </div>
   </div>
 </div>
@@ -210,200 +371,289 @@
 (function(){
   "use strict";
 
-  var form=document.getElementById("searchForm"),input=document.getElementById("searchInput"),
-      clearBtn=document.getElementById("searchClear"),submit=document.getElementById("searchSubmit"),
-      statusDot=document.getElementById("statusDot"),statusTx=document.getElementById("statusText"),
-      grid=document.getElementById("grid"),resultsSection=document.getElementById("resultsSection"),
-      resultsTitle=document.getElementById("resultsTitle"),recommendSection=document.getElementById("recommendSection"),
-      recommendGrid=document.getElementById("recommendGrid"),chips=document.getElementById("chips"),
-      modal=document.getElementById("modal"),mClose=document.getElementById("mClose"),
-      mTitle=document.getElementById("mTitle"),mDesc=document.getElementById("mDesc"),
-      playerWrap=document.getElementById("playerWrap"),sourceBar=document.getElementById("sourceBar"),
-      mFiles=document.getElementById("mFiles"),toasts=document.getElementById("toasts");
+  var $ = function(id){ return document.getElementById(id); };
+  var form=$("searchForm"), input=$("searchInput"), clearBtn=$("searchClear"), submit=$("searchSubmit"),
+      statusDot=$("statusDot"), statusTx=$("statusText"),
+      grid=$("grid"), resultsSection=$("resultsSection"), resultsTitle=$("resultsTitle"), resultsSub=$("resultsSub"),
+      recommendSection=$("recommendSection"), recommendGrid=$("recommendGrid"),
+      examples=$("examples"), cats=$("cats"), backTop=$("backTop"),
+      modal=$("modal"), mClose=$("mClose"), mTitle=$("mTitle"), mDesc=$("mDesc"),
+      playerWrap=$("playerWrap"), sourceBar=$("sourceBar"), mFiles=$("mFiles"),
+      filesTitle=$("filesTitle"), mHint=$("mHint"), toasts=$("toasts");
 
-  var activeChip=null,currentIndex=-1,lastFocused=null,requestSeq=0;
+  var state = {
+    query: "", category: "", page: 1, pageSize: 30,
+    hasMore: false, requestSeq: 0,
+    modalItem: null, sources: [],
+    lastFocused: null, scrollY: 0
+  };
 
-  function setStatus(t,l){statusTx.textContent=t;statusDot.classList.toggle("loading",!!l);}
-  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
-  function fmtBytes(n){if(!n||n<1024)return(n||0)+" B";var u=["KB","MB","GB"],i=-1;do{n/=1024;i++;}while(n>=1024&&i<u.length-1);return n.toFixed(n<10?1:0)+" "+u[i];}
-  function thumbUrl(id){return"https://archive.org/services/img/"+encodeURIComponent(id);}
-  function isVideo(n){return/\.(mp4|m4v|ogv|webm|avi|mov|mkv)$/i.test(n);}
-  function isAudio(n){return/\.(mp3|ogg|oga|flac|wav|m4a|aac|opus)$/i.test(n);}
-  function toast(msg,type){type=type||"info";var el=document.createElement("div");el.className="toast"+(type==="error"?" error":"");
+  /* ---------- utils ---------- */
+  function setStatus(t,l){ statusTx.textContent=t; statusDot.classList.toggle("loading",!!l); }
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function fmtBytes(n){ if(!n||n<1024) return (n||0)+" B"; var u=["KB","MB","GB"],i=-1; do{n/=1024;i++;} while(n>=1024&&i<u.length-1); return n.toFixed(n<10?1:0)+" "+u[i]; }
+  function thumbUrl(id){ return "https://archive.org/services/img/"+encodeURIComponent(id); }
+  function isVideo(n){ return /\.(mp4|m4v|webm|ogv|ogm|mkv|avi|mov|mpg|mpeg|m2v|m2ts|mts|ts|3gp|3g2|dv|flv|wmv|asf|vob)$/i.test(n); }
+  function isAudio(n){ return /\.(mp3|mp2|m4a|aac|ogg|oga|opus|flac|wav|aiff|aif|aifc|wma|ape|alac|mid|midi)$/i.test(n); }
+  function toast(msg,type){ type=type||"info"; var el=document.createElement("div"); el.className="toast"+(type==="error"?" error":"");
     el.innerHTML='<span class="ic" aria-hidden="true">'+(type==="error"?"✕":"✓")+'</span><span>'+esc(msg)+'</span>';
-    toasts.appendChild(el);setTimeout(function(){el.classList.add("out");setTimeout(function(){el.remove();},320);},2800);}
+    toasts.appendChild(el); setTimeout(function(){ el.classList.add("out"); setTimeout(function(){ el.remove(); },320); },2800); }
 
-  function showSkeletons(target,count){target.innerHTML="";for(var i=0;i<(count||8);i++){var s=document.createElement("div");s.className="skel";
-    s.innerHTML='<div class="skel-poster"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div></div>';target.appendChild(s);}}
+  function skeletons(target,count){ target.innerHTML=""; for(var i=0;i<(count||8);i++){ var s=document.createElement("div"); s.className="skel";
+    s.innerHTML='<div class="skel-poster"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div></div>';
+    target.appendChild(s); } }
 
-  /* ================================================================
-     THE SEARCH — verified endpoint + forgiving fallback ladder
-     ================================================================ */
-  function buildUrl(q){
-    return "https://archive.org/advancedsearch.php?q=" + encodeURIComponent(q) +
-      "&fl[]=identifier&fl[]=title&fl[]=year&fl[]=description&fl[]=downloads" +
-      "&rows=40&page=1&output=json";
+  /* ---------- archive.org ---------- */
+  function archiveUrl(q,page,size,sort){
+    var base = "https://archive.org/advancedsearch.php?q="+encodeURIComponent(q)+
+      "&fl[]=identifier&fl[]=title&fl[]=year&fl[]=description&fl[]=downloads&fl[]=mediatype"+
+      "&rows="+size+"&page="+page+"&output=json";
+    if(sort) base += "&sort[]="+encodeURIComponent(sort);
+    return base;
   }
-
-  function fetchDocs(q){
-    return fetch(buildUrl(q)).then(function(r){
-      if(!r.ok) throw new Error("HTTP " + r.status);
+  function fetchOnce(url){
+    return fetch(url).then(function(r){
+      if(r.status===429) throw {retry:true,msg:"Rate limited"};
+      if(!r.ok) throw {msg:"HTTP "+r.status};
       return r.json();
     }).then(function(data){
-      var docs = (data && data.response && data.response.docs) || [];
-      return docs.filter(function(d){ return d && d.identifier; });
+      var resp = (data && data.response) || {};
+      var docs = (resp.docs || []).filter(function(d){ return d && d.identifier; });
+      return { docs: docs, numFound: resp.numFound || docs.length };
     });
   }
-
-  function search(query){
-    query = String(query || "").trim();
-    if(!query){ input.focus(); return; }
-
-    var mySeq = ++requestSeq;
-    submit.disabled = true;
-    setStatus('searching for "' + query + '"…', true);
-    resultsSection.hidden = false;
-    resultsTitle.textContent = 'Results for "' + query + '"';
-    showSkeletons(grid, 10);
-
-    // Progressive fallback ladder — this is what makes "anything" work.
-    // 1. raw term (Archive's own search box behaviour)
-    // 2. title:(term)  — catches exact-title searches
-    // 3. first word only — catches long queries
-    // 4. mediatype:(movies) term — narrower but often hits
-    fetchDocs(query).then(function(d1){
-      if(mySeq !== requestSeq) return null;
-      if(d1.length) return d1;
-
-      // Step 2: title match
-      return fetchDocs("title:(" + query + ")").then(function(d2){
-        if(mySeq !== requestSeq) return null;
-        if(d2.length) return d2;
-
-        // Step 3: first meaningful word
-        var firstWord = query.split(/\s+/).filter(function(w){ return w.length > 1; })[0] || query;
-        return fetchDocs(firstWord).then(function(d3){
-          if(mySeq !== requestSeq) return null;
-          if(d3.length) return d3;
-
-          // Step 4: mediatype movies
-          return fetchDocs("(" + query + ") AND mediatype:(movies)").then(function(d4){
-            return d4;
-          });
-        });
-      });
-    }).then(function(docs){
-      if(mySeq !== requestSeq) return;
-      if(!docs) return; // superseded
-
-      renderResults(grid, docs, query);
-      if(docs.length){
-        setStatus(docs.length + ' result' + (docs.length > 1 ? 's' : '') + ' for "' + query + '"');
-        toast(docs.length + ' result' + (docs.length > 1 ? 's' : '') + ' found');
-        recommendSection.hidden = true;
-      } else {
-        setStatus('no results for "' + query + '"');
+  function retryFetch(url, tries){
+    tries = tries == null ? 2 : tries;
+    return fetchOnce(url).catch(function(err){
+      if(tries > 0 && err && err.retry){
+        return new Promise(function(res){ setTimeout(res, 600); }).then(function(){ return retryFetch(url, tries-1); });
       }
-    }).catch(function(err){
-      if(mySeq !== requestSeq) return;
-      console.error(err);
-      grid.innerHTML = '<div class="empty"><span class="emoji">⚠️</span><strong>Search failed: ' + esc(err.message) + '</strong>Check your connection and try again.</div>';
-      setStatus('search failed: ' + err.message);
-      toast('Search failed: ' + err.message, 'error');
-    }).finally(function(){
-      if(mySeq === requestSeq) submit.disabled = false;
+      throw err;
     });
   }
 
-  function renderResults(target, docs, query){
-    target.innerHTML = "";
+  /* ---------- fallback ladder ---------- */
+  function buildQueries(term, category){
+    var qs = [], base = term ? "("+term+")" : "*:*";
+    if(category){
+      qs.push(base+" AND collection:("+category+") AND mediatype:(movies)");
+      qs.push(base+" AND collection:("+category+")");
+      qs.push(base+" AND subject:("+category+")");
+    } else if(term){
+      qs.push(base+" AND mediatype:(movies)");
+      qs.push(base);
+      qs.push("title:("+term+")");
+      var first = (term.split(/\s+/).filter(function(w){ return w.length>1; })[0]) || term;
+      qs.push(first+" AND mediatype:(movies)");
+    } else {
+      qs.push("mediatype:(movies) AND collection:(feature_films OR silent_films OR animationandcartoons OR classic_tv)");
+    }
+    return qs;
+  }
+  function runSearch(term, category, page){
+    page = page || 1;
+    var size = state.pageSize, queries = buildQueries(term, category);
+    var mySeq = ++state.requestSeq, i = 0;
+    function next(){
+      if(i >= queries.length) return { docs: [], numFound: 0 };
+      var q = queries[i++];
+      return retryFetch(archiveUrl(q, page, size, "downloads desc")).catch(function(){
+        return { docs: [], numFound: 0 };
+      }).then(function(res){
+        if(mySeq !== state.requestSeq) return { docs: [], numFound: 0 };
+        if(res.docs.length) return res;
+        return next();
+      });
+    }
+    return next();
+  }
+
+  /* ---------- render results ---------- */
+  function renderResults(target, docs, append){
+    if(!append) target.innerHTML = "";
     if(!docs.length){
-      target.innerHTML = '<div class="empty"><span class="emoji">🔍</span><strong>No results</strong>Nothing found for "' + esc(query) + '". Try fewer words or a different spelling.</div>';
+      if(append) return;
+      target.innerHTML = '<div class="empty"><span class="emoji">🔍</span>'+
+        '<strong>No results</strong>Try fewer words or a different spelling.'+
+        '<div class="suggestions">'+
+          ['horror','comedy','western','chaplin','silent'].map(function(s){
+            return '<button type="button" data-suggest="'+s+'">'+s+'</button>';
+          }).join('') +
+        '</div></div>';
       return;
     }
     docs.forEach(function(doc, i){ target.appendChild(makeCard(doc, i)); });
+
+    var sug = target.querySelector(".suggestions");
+    if(sug){
+      sug.addEventListener("click", function(e){
+        var b = e.target.closest("button[data-suggest]");
+        if(b){ input.value = b.dataset.suggest; clearActiveCat(); search(b.dataset.suggest, "", 1); }
+      });
+    }
   }
 
+  /* ---------- cards (with ALWAYS-visible badges) ---------- */
   function makeCard(doc, i){
     var card = document.createElement("div");
     card.className = "card";
-    card.style.animationDelay = (i * 0.03) + "s";
+    card.style.animationDelay = (i*0.03)+"s";
     card.tabIndex = 0;
     card.setAttribute("role", "button");
 
     var title = Array.isArray(doc.title) ? doc.title[0] : (doc.title || doc.identifier);
-    var year  = doc.year || "";
-    var desc  = Array.isArray(doc.description) ? doc.description[0] : (doc.description || "");
+    var year = doc.year || "";
+    var desc = Array.isArray(doc.description) ? doc.description.join(" ") : (doc.description || "");
     card.setAttribute("aria-label", "Open " + title);
 
     card.innerHTML =
-      '<div class="poster"><img loading="lazy" src="' + thumbUrl(doc.identifier) + '" alt="' + esc(title) + '" ' +
-        'onerror="this.style.display=\'none\';this.parentElement.textContent=\'🎬\'"></div>' +
-      '<div class="card-body"><div class="title">' + esc(title) + '</div>' +
-      '<div class="meta">' + (year ? '<span>' + esc(year) + '</span><span>·</span>' : '') +
-      '<span>' + (doc.downloads ? doc.downloads.toLocaleString() + ' dl' : 'film') + '</span></div></div>';
+      '<div class="poster">' +
+        '<img loading="lazy" src="'+thumbUrl(doc.identifier)+'" alt="'+esc(title)+'" '+
+        'onerror="this.style.display=\'none\';this.parentElement.textContent=\'🎬\'">' +
+        '<div class="badges">' +
+          '<span class="badge play">▶ Stream</span>' +
+          '<span class="badge dl">⬇ Download</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="title">'+esc(title)+'</div>' +
+        '<div class="meta">' +
+          (year?'<span>'+esc(year)+'</span><span>·</span>':'') +
+          '<span>'+(doc.downloads?doc.downloads.toLocaleString()+' dl':'film')+'</span>' +
+        '</div>' +
+        '<div class="card-cta">Open film</div>' +
+      '</div>';
 
     function open(){ openDetails(doc, title, desc, card); }
     card.addEventListener("click", open);
-    card.addEventListener("keydown", function(e){
-      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); }
-    });
+    card.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } });
     return card;
   }
 
+  /* ---------- recommendations ---------- */
   function loadRecommendations(){
-    showSkeletons(recommendGrid, 8);
-    fetchDocs("feature_films OR silent_films OR animationandcartoons").then(function(docs){
-      recommendGrid.innerHTML = "";
-      if(!docs.length){
+    skeletons(recommendGrid, 8);
+    retryFetch(archiveUrl('mediatype:(movies) AND (collection:feature_films OR collection:silent_films OR collection:animationandcartoons)', 1, 12, "downloads desc"))
+      .then(function(res){
+        recommendGrid.innerHTML = "";
+        if(!res.docs.length){
+          recommendGrid.innerHTML = '<div class="empty"><span class="emoji">🎞️</span>Recommendations unavailable right now.</div>';
+          return;
+        }
+        res.docs.forEach(function(doc,i){ recommendGrid.appendChild(makeCard(doc, i)); });
+      })
+      .catch(function(){
         recommendGrid.innerHTML = '<div class="empty"><span class="emoji">🎞️</span>Recommendations unavailable right now.</div>';
-        return;
-      }
-      docs.slice(0, 12).forEach(function(doc, i){ recommendGrid.appendChild(makeCard(doc, i)); });
-    }).catch(function(){
-      recommendGrid.innerHTML = '<div class="empty"><span class="emoji">🎞️</span>Recommendations unavailable right now.</div>';
-    });
+      });
   }
 
+  /* ---------- search orchestration ---------- */
+  function search(term, category, page){
+    term = String(term||"").trim();
+    category = category == null ? state.category : category;
+    page = page || 1;
+    if(!term && !category){
+      setStatus("ready · search or browse");
+      resultsSection.hidden = true;
+      recommendSection.hidden = false;
+      return;
+    }
+    state.query = term; state.category = category; state.page = page;
+    resultsSection.hidden = false; recommendSection.hidden = true;
+    resultsTitle.textContent = term ? 'Results for "'+term+'"' : 'Browse';
+    resultsSub.textContent = "Tap any poster to see the film and its files.";
+    if(page === 1){ setStatus((term?'searching for "'+term+'"…':"loading…"), true); skeletons(grid, 10); }
+    var mySeq = state.requestSeq;
+    submit.disabled = true;
+    runSearch(term, category, page)
+      .then(function(res){
+        if(mySeq !== state.requestSeq) return;
+        state.hasMore = (page*state.pageSize) < res.numFound;
+        renderResults(grid, res.docs, page > 1);
+        if(res.docs.length){
+          setStatus(res.docs.length + ' result' + (res.docs.length>1?'s':'') + ' for "' + (term||'browse') + '"');
+        } else {
+          setStatus('no results');
+        }
+        if(state.hasMore){
+          var more = document.createElement("div");
+          more.className = "load-more";
+          more.innerHTML = '<button type="button" id="loadMoreBtn">Load more</button>';
+          grid.appendChild(more);
+          $("loadMoreBtn").addEventListener("click", function(){
+            this.disabled = true; this.textContent = "Loading…";
+            search(term, category, page+1);
+          });
+        }
+      })
+      .catch(function(err){
+        if(mySeq !== state.requestSeq) return;
+        console.error(err);
+        grid.innerHTML = '<div class="empty"><span class="emoji">⚠️</span><strong>Search failed</strong>Check your connection and try again.</div>';
+        setStatus("search failed");
+        toast("Search failed — check your connection", "error");
+      })
+      .finally(function(){ if(mySeq === state.requestSeq) submit.disabled = false; });
+  }
+
+  /* ---------- modal ---------- */
   function openDetails(doc, title, desc, openerEl){
-    lastFocused = openerEl || document.activeElement;
+    state.lastFocused = openerEl || document.activeElement;
+    state.modalItem = doc;
     mTitle.textContent = title;
     mDesc.textContent = desc || "Public-domain film from the Internet Archive.";
-    playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">🎛️</span><strong>You choose what to watch</strong>Pick any file below to stream it here — or download it.</div>';
+    playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">🎛️</span><strong>Pick a file below</strong>Then tap Stream to watch it, or Download to save it.</div>';
     sourceBar.innerHTML = "";
     mFiles.innerHTML = '<div style="color:var(--dim);font-size:12px;">Loading files…</div>';
-    currentIndex = -1;
+    filesTitle.textContent = "Pick a file";
+
+    state.scrollY = window.scrollY || 0;
+    document.body.classList.add("modal-open");
+    document.body.style.top = (-state.scrollY) + "px";
 
     modal.classList.add("open");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+    modal.setAttribute("aria-hidden","false");
     setTimeout(function(){ mClose.focus(); }, 50);
+    try { history.pushState({modal:true}, ""); } catch(e) {}
 
-    fetch("https://archive.org/metadata/" + encodeURIComponent(doc.identifier))
-      .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    fetch("https://archive.org/metadata/"+encodeURIComponent(doc.identifier))
+      .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
       .then(function(meta){
         var files = (meta && meta.files) || [];
         var media = files.filter(function(f){ return f.name && (isVideo(f.name) || isAudio(f.name)); });
         media.sort(function(a,b){
-          var av = isVideo(a.name) ? 0 : 1, bv = isVideo(b.name) ? 0 : 1;
-          if(av !== bv) return av - bv;
-          return (Number(b.size) || 0) - (Number(a.size) || 0);
+          var av = isVideo(a.name)?0:1, bv = isVideo(b.name)?0:1;
+          if(av !== bv) return av-bv;
+          return (Number(b.size)||0) - (Number(a.size)||0);
         });
-        if(!media.length){
-          playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">📁</span>No playable or downloadable files found for this item.</div>';
-          mFiles.innerHTML = '<div style="color:var(--dim);font-size:12px;">No files available.</div>';
-          return;
+        var sources;
+        if(media.length){
+          sources = media.map(function(f){
+            var base = "https://archive.org/download/"+encodeURIComponent(doc.identifier)+"/"+encodeURIComponent(f.name);
+            return { name: f.name, size: Number(f.size)||0, video: isVideo(f.name), audio: isAudio(f.name), url: base, downloadUrl: base, playable: true };
+          });
+        } else {
+          var all = files.filter(function(f){ return f.name && !/\.(xml|json|torrent|sqlite)$/i.test(f.name); });
+          if(!all.length){
+            playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">📁</span>This item has no files.</div>';
+            mFiles.innerHTML = '<div style="color:var(--dim);font-size:12px;">No files.</div>';
+            return;
+          }
+          all.sort(function(a,b){ return (Number(b.size)||0) - (Number(a.size)||0); });
+          sources = all.map(function(f){
+            var base = "https://archive.org/download/"+encodeURIComponent(doc.identifier)+"/"+encodeURIComponent(f.name);
+            return { name: f.name, size: Number(f.size)||0, video: false, audio: false, url: base, downloadUrl: base, playable: false };
+          });
+          playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">📦</span><strong>No streamable media</strong>You can still download any file below.</div>';
+          filesTitle.textContent = "All files (download only)";
         }
-        var sources = media.map(function(f){
-          var base = "https://archive.org/download/" + encodeURIComponent(doc.identifier) + "/" + encodeURIComponent(f.name);
-          return { name: f.name, size: Number(f.size) || 0, video: isVideo(f.name), audio: isAudio(f.name), url: base, downloadUrl: base };
-        });
+        state.sources = sources;
         buildSourceBar(sources);
         renderFiles(sources);
       })
       .catch(function(err){
         console.error(err);
-        playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">⚠️</span>Could not load files for this item.</div>';
+        playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">⚠️</span>Could not load files.</div>';
         mFiles.innerHTML = '<div style="color:var(--dim);font-size:12px;">Could not load files.</div>';
         toast("Could not load this item", "error");
       });
@@ -411,28 +661,24 @@
 
   function buildSourceBar(srcs){
     sourceBar.innerHTML = "";
-    srcs.slice(0, 8).forEach(function(s, i){
-      var ext = (s.name.split(".").pop() || "").toLowerCase();
-      var label = ext.toUpperCase();
-      if(s.size) label += " · " + fmtBytes(s.size);
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "source-pill";
-      btn.textContent = label;
-      btn.addEventListener("click", function(){ selectSource(srcs, i); });
+    srcs.filter(function(s){ return s.playable; }).slice(0,8).forEach(function(s){
+      var i = srcs.indexOf(s);
+      var ext = (s.name.split(".").pop()||"").toLowerCase();
+      var label = ext.toUpperCase(); if(s.size) label += " · "+fmtBytes(s.size);
+      var btn = document.createElement("button"); btn.type="button"; btn.className="source-pill"; btn.textContent=label;
+      btn.addEventListener("click", function(){ selectSource(i); });
       sourceBar.appendChild(btn);
     });
   }
 
-  function selectSource(srcs, idx){
-    currentIndex = idx;
+  function selectSource(idx){
+    var srcs = state.sources;
+    if(!srcs[idx]) return;
     var pills = sourceBar.querySelectorAll(".source-pill");
-    pills.forEach(function(b, bi){ b.classList.toggle("active", bi === idx); });
+    var playable = srcs.map(function(s,i){ return s.playable ? i : -1; }).filter(function(i){ return i!==-1; });
+    pills.forEach(function(b,bi){ b.classList.toggle("active", playable[bi]===idx); });
     var rows = mFiles.querySelectorAll(".file-row");
-    rows.forEach(function(r, ri){
-      var pb = r.querySelector(".play-btn");
-      if(pb) pb.classList.toggle("active-play", ri === idx);
-    });
+    rows.forEach(function(r,ri){ var pb=r.querySelector(".play-btn"); if(pb) pb.classList.toggle("active-play", ri===idx); });
     loadPlayer(srcs[idx]);
   }
 
@@ -441,17 +687,18 @@
     if(!s){ playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">▶️</span>No source selected.</div>'; return; }
     if(s.video){
       var v = document.createElement("video");
-      v.controls = true; v.autoplay = true; v.playsInline = true; v.preload = "metadata"; v.src = s.url;
+      v.controls = true; v.autoplay = false; v.playsInline = true; v.preload = "metadata"; v.src = s.url;
+      v.poster = thumbUrl(state.modalItem.identifier);
       v.addEventListener("error", function(){
-        playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">🎞️</span>This format can\'t play in your browser.<br>Try another source, or download below.</div>';
-        toast("That format can't be streamed here — try another", "error");
+        playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">🎞️</span>This format can\'t play here.<br>Try another source, or download below.</div>';
+        toast("That format can't be streamed — try another", "error");
       });
       playerWrap.appendChild(v);
     } else if(s.audio){
       var a = document.createElement("audio");
-      a.controls = true; a.autoplay = true; a.preload = "metadata"; a.src = s.url;
+      a.controls = true; a.autoplay = false; a.preload = "metadata"; a.src = s.url;
       a.addEventListener("error", function(){
-        playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">🎵</span>Could not play this audio file. Try another source or download it below.</div>';
+        playerWrap.innerHTML = '<div class="player-fallback"><span class="emoji">🎵</span>Could not play this audio file.</div>';
         toast("Audio failed to play — try another source", "error");
       });
       playerWrap.appendChild(a);
@@ -462,66 +709,101 @@
 
   function renderFiles(srcs){
     mFiles.innerHTML = "";
-    srcs.slice(0, 40).forEach(function(s, i){
-      var ext = (s.name.split(".").pop() || "").toUpperCase().slice(0, 4);
-      var row = document.createElement("div");
-      row.className = "file-row";
+    var list = srcs.slice(0, 60);
+    list.forEach(function(s){
+      var i = srcs.indexOf(s);
+      var ext = (s.name.split(".").pop()||"").toUpperCase().slice(0,4);
+      var row = document.createElement("div"); row.className="file-row";
+      var streamBtn = s.playable
+        ? '<button type="button" class="file-btn play-btn">▶ Stream</button>'
+        : '<button type="button" class="file-btn" disabled title="Cannot stream this format">No stream</button>';
       row.innerHTML =
-        '<div class="file-ext">' + esc(ext) + '</div>' +
-        '<div class="file-info"><div class="file-name">' + esc(s.name) + '</div>' +
-        '<div class="file-size">' + esc(fmtBytes(s.size)) + '</div></div>' +
-        '<div class="file-actions">' +
-          '<button type="button" class="file-btn play-btn">Stream</button>' +
-          '<a class="file-btn primary" href="' + s.downloadUrl + '" target="_blank" rel="noopener" download>Download</a>' +
-        '</div>';
-      row.querySelector(".play-btn").addEventListener("click", function(){
-        selectSource(srcs, i);
-        playerWrap.scrollIntoView({ behavior: "smooth", block: "center" });
-      });
+        '<div class="file-ext">'+esc(ext)+'</div>'+
+        '<div class="file-info"><div class="file-name">'+esc(s.name)+'</div>'+
+        '<div class="file-size">'+esc(fmtBytes(s.size))+'</div></div>'+
+        '<div class="file-actions">'+streamBtn+
+        '<a class="file-btn primary" href="'+s.downloadUrl+'" target="_blank" rel="noopener" download>⬇ Download</a></div>';
+      if(s.playable){
+        row.querySelector(".play-btn").addEventListener("click", function(){
+          selectSource(i);
+          playerWrap.scrollIntoView({ behavior:"smooth", block:"center" });
+        });
+      }
       mFiles.appendChild(row);
     });
+    if(srcs.length > list.length){
+      mHint.textContent = "Showing "+list.length+" of "+srcs.length+" files.";
+    } else {
+      mHint.textContent = "Every file here is a legal copy from the Internet Archive.";
+    }
   }
 
   function closeModal(){
-    playerWrap.querySelectorAll("video,audio").forEach(function(m){
-      try { m.pause(); m.removeAttribute("src"); m.load(); } catch(e){}
-    });
+    playerWrap.querySelectorAll("video,audio").forEach(function(m){ try{ m.pause(); m.removeAttribute("src"); m.load(); }catch(e){} });
     modal.classList.remove("open");
-    modal.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-    if(lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+    modal.setAttribute("aria-hidden","true");
+    var y = state.scrollY;
+    document.body.classList.remove("modal-open");
+    document.body.style.top = "";
+    window.scrollTo(0, y);
+    if(state.lastFocused && typeof state.lastFocused.focus === "function") state.lastFocused.focus();
   }
   mClose.addEventListener("click", closeModal);
-  modal.addEventListener("click", function(e){ if(e.target === modal) closeModal(); });
-  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && modal.classList.contains("open")) closeModal(); });
+  modal.addEventListener("click", function(e){ if(e.target===modal) closeModal(); });
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && modal.classList.contains("open")) closeModal(); });
+  window.addEventListener("popstate", function(){ if(modal.classList.contains("open")) closeModal(); });
 
-  function syncClear(){ clearBtn.classList.toggle("visible", input.value.length > 0); }
+  /* ---------- input UX ---------- */
+  function syncClear(){ clearBtn.classList.toggle("visible", input.value.length>0); }
   input.addEventListener("input", syncClear);
   clearBtn.addEventListener("click", function(){
-    input.value = ""; syncClear(); input.focus();
-    setStatus("ready · search to begin");
+    input.value=""; syncClear(); input.focus();
+    setStatus("ready · search or browse");
     resultsSection.hidden = true;
     recommendSection.hidden = false;
+    clearActiveCat();
   });
 
-  form.addEventListener("submit", function(e){
-    e.preventDefault();
-    clearActiveChip();
-    search(input.value);
+  form.addEventListener("submit", function(e){ e.preventDefault(); clearActiveCat(); search(input.value, "", 1); });
+
+  /* ---------- quick examples ---------- */
+  examples.addEventListener("click", function(e){
+    var b = e.target.closest(".ex");
+    if(!b) return;
+    input.value = b.dataset.q; syncClear();
+    clearActiveCat();
+    search(b.dataset.q, "", 1);
   });
 
-  function clearActiveChip(){ if(activeChip){ activeChip.classList.remove("active"); activeChip = null; } }
-  chips.addEventListener("click", function(e){
-    var btn = e.target.closest(".chip");
-    if(!btn) return;
-    clearActiveChip();
-    btn.classList.add("active");
-    activeChip = btn;
-    input.value = btn.dataset.q;
-    syncClear();
-    search(btn.dataset.q);
+  /* ---------- category tabs ---------- */
+  function clearActiveCat(){
+    cats.querySelectorAll(".cat").forEach(function(t){ t.classList.remove("active"); });
+    var all = cats.querySelector('[data-cat=""]');
+    if(all) all.classList.add("active");
+  }
+  cats.addEventListener("click", function(e){
+    var b = e.target.closest(".cat");
+    if(!b) return;
+    cats.querySelectorAll(".cat").forEach(function(t){ t.classList.remove("active"); });
+    b.classList.add("active");
+    var cat = b.dataset.cat;
+    if(!cat){
+      input.value=""; syncClear();
+      setStatus("ready · search or browse");
+      resultsSection.hidden = true; recommendSection.hidden = false;
+      return;
+    }
+    input.value=""; syncClear();
+    search("", cat, 1);
   });
 
+  /* ---------- back to top ---------- */
+  window.addEventListener("scroll", function(){
+    if(window.scrollY > 600) backTop.classList.add("show"); else backTop.classList.remove("show");
+  }, { passive: true });
+  backTop.addEventListener("click", function(){ window.scrollTo({ top:0, behavior:"smooth" }); });
+
+  /* ---------- boot ---------- */
   syncClear();
   loadRecommendations();
 })();
