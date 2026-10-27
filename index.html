@@ -119,8 +119,8 @@
     if(LEFT) return;
     LEFT = true;
     body.classList.add('hide');
-    // Use replace so back button doesn't return to splash
-    setTimeout(function(){ window.location.replace('index.html'); }, 500);
+    // Redirect to the app page — absolute path so it can never loop back to index.html
+    setTimeout(function(){ window.location.replace('/app.html'); }, 500);
   }
 
   // Auto-continue after 2.2s
