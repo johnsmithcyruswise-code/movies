@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>fylm</title>
+<style>
+  :root{ --o1:#ff5e00; --o2:#ff8c00; --o3:#ffb800; --bg:#050505; }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    background:var(--bg); color:#eee; overflow:hidden;
+    font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    display:flex; justify-content:center; align-items:center;
+    cursor:pointer; user-select:none;
+    transition:opacity .6s ease;
+  }
+  body.hide{ opacity:0; }
+  .splash-inner{ text-align:center; animation:scaleIn 1.2s cubic-bezier(0.22,1,0.36,1) both; }
+  .stage{
+    position:relative; width:min(92vw,780px); height:340px;
+    display:flex; justify-content:center; align-items:center;
+    transform:rotate(-6deg);
+  }
+  .film{
+    position:absolute; left:8%; width:78%; height:54px;
+    background:linear-gradient(180deg,#4a4a4a,#1c1c1c);
+    border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,.7);
+    transform:skewX(-20deg); z-index:0;
+  }
+  .film::before{
+    content:''; position:absolute; inset:14px;
+    background:repeating-linear-gradient(90deg,#050505 0 16px, transparent 16px 34px);
+    border-radius:3px;
+  }
+  .film.top{ top:22px; animation:driftA 5s ease-in-out infinite alternate; }
+  .film.bottom{ bottom:22px; left:14%; animation:driftB 6s ease-in-out infinite alternate; }
+  .streak{
+    position:absolute; height:10px; border-radius:10px;
+    background:linear-gradient(90deg,transparent,#ff8c00 40%,#ffc933);
+    box-shadow:0 0 14px rgba(255,150,0,.8); z-index:0;
+  }
+  .streak.s1{ width:55%; top:70px; right:-4%; animation:driftB 3s ease-in-out infinite alternate; }
+  .streak.s2{ width:40%; top:105px; right:0; height:6px; animation:driftA 2.6s ease-in-out infinite alternate; }
+  .streak.s3{ width:60%; bottom:80px; right:2%; animation:driftA 3.4s ease-in-out infinite alternate; }
+  .streak.s4{ width:35%; bottom:55px; left:-2%; height:5px; background:linear-gradient(90deg,#ff5e00,transparent); animation:driftB 2.8s ease-in-out infinite alternate; }
+  .streak.s5{ width:30%; top:130px; left:-4%; height:4px; background:linear-gradient(90deg,#ff5e00,transparent); animation:driftA 3.1s ease-in-out infinite alternate; }
+  .word{
+    position:relative; z-index:2;
+    font-size:clamp(5.5rem,22vw,10rem);
+    font-weight:800; font-style:italic; letter-spacing:-0.05em; line-height:1;
+    background:linear-gradient(90deg,#ff5e00 0%,#ff8c00 40%,#ffb800 75%,#ffd54f 100%);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    filter:drop-shadow(0 3px 0 #d95500) drop-shadow(0 6px 0 #a84000) drop-shadow(0 0 28px rgba(255,120,0,.55));
+    animation:float 4s ease-in-out infinite;
+  }
+  .slogan{
+    margin-top:10px; font-size:1rem; letter-spacing:.32em; color:#ddd; text-transform:uppercase;
+    opacity:0; animation:fadeUp 1s .5s ease-out forwards;
+  }
+  .slogan span{ color:#ff7a00; margin:0 10px; }
+  .playrow{
+    margin-top:22px; display:flex; align-items:center; justify-content:center; gap:18px;
+    opacity:0; animation:fadeUp 1s .8s ease-out forwards;
+  }
+  .playrow i{ display:block; width:110px; height:2px; background:#666; }
+  .playrow b{
+    width:0; height:0; border-style:solid; border-width:10px 0 10px 18px;
+    border-color:transparent transparent transparent #ff6b00;
+    animation:pulse 2.5s ease-in-out infinite;
+  }
+  .hint{
+    position:absolute; bottom:26px; left:0; right:0; text-align:center;
+    font-size:11.5px; color:rgba(255,255,255,.4); letter-spacing:.15em; text-transform:uppercase;
+    animation:fadeUp .8s 1.4s ease-out backwards;
+  }
+  @keyframes scaleIn{ from{ transform:scale(.7); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  @keyframes float{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+  @keyframes driftA{ from{ transform:translateX(-25px) skewX(-20deg); } to{ transform:translateX(25px) skewX(-20deg); } }
+  @keyframes driftB{ from{ transform:translateX(25px); } to{ transform:translateX(-25px); } }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+  @keyframes pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.2); } }
+  @media (max-width:700px){
+    .stage{ height:260px; }
+    .film{ height:40px; }
+    .film::before{ inset:10px; }
+    .slogan{ font-size:.7rem; letter-spacing:.2em; }
+    .playrow i{ width:60px; }
+  }
+</style>
+</head>
+<body id="splashBody">
+
+  <div class="splash-inner">
+    <div class="stage">
+      <div class="film top"></div>
+      <div class="film bottom"></div>
+      <div class="streak s1"></div>
+      <div class="streak s2"></div>
+      <div class="streak s3"></div>
+      <div class="streak s4"></div>
+      <div class="streak s5"></div>
+      <div class="word">fylm</div>
+    </div>
+    <div class="slogan"><span>•</span>Movies at your convenience<span>•</span></div>
+    <div class="playrow"><i></i><b></b><i></i></div>
+  </div>
+  <div class="hint">tap anywhere to continue</div>
+
+<script>
+(function(){
+  "use strict";
+  var body = document.getElementById('splashBody');
+  var LEFT = false;
+
+  function go(){
+    if(LEFT) return;
+    LEFT = true;
+    body.classList.add('hide');
+    // Use replace so back button doesn't return to splash
+    setTimeout(function(){ window.location.replace('index.html'); }, 500);
+  }
+
+  // Auto-continue after 2.2s
+  var t = setTimeout(go, 2200);
+
+  // Tap/click/key skips immediately
+  body.addEventListener('click', function(){ clearTimeout(t); go(); });
+  document.addEventListener('keydown', function(e){ clearTimeout(t); go(); }, { once:true });
+  document.addEventListener('touchstart', function(){ clearTimeout(t); go(); }, { once:true, passive:true });
+})();
+</script>
+</body>
+</html>
