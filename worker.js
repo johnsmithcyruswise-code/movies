@@ -2,7 +2,7 @@
 // Vela — Cloudflare Worker
 // Uploads → Cloudflare R2 (presigned PUT)
 // Auth    → Supabase Google login (JWT verified via JWKS)
-// Catalog → catalog.json stored in R2, read-only via R2_PUBLIC_URL
+// Catalog → catalog.json stored in R2, read via R2_PUBLIC_URL
 // ============================================================
 
 const ALLOWED_ORIGINS = [
@@ -19,7 +19,6 @@ const ALLOWED_TYPES = [
   'audio/mpeg', 'audio/mp4', 'audio/ogg', 'audio/wav', 'audio/flac',
 ]
 
-// ---------- helpers ----------
 function corsHeaders(origin) {
   const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
   return {
@@ -51,7 +50,6 @@ function b64urlDecodeString(s) {
   return new TextDecoder().decode(b64urlToBytes(s))
 }
 
-// Verify a Supabase-issued JWT using the project's JWKS
 async function verifySupabaseJwt(env, token) {
   if (!token) throw new Error('missing token')
   const parts = token.split('.')
@@ -103,7 +101,6 @@ function toHex(buf) {
   return [...buf].map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-// ---------- R2 presigned PUT (AWS SigV4) ----------
 async function presignPut(env, objectKey, contentType, expiresSec) {
   const method = 'PUT'
   const host = `${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
@@ -150,7 +147,6 @@ async function presignPut(env, objectKey, contentType, expiresSec) {
   return `https://${host}${canonicalUri}?${canonicalQuery}&X-Amz-Signature=${signature}`
 }
 
-// ---------- catalog ----------
 const EMPTY_CATALOG = () => ({ version: 1, updatedAt: 0, movies: [], uploads: {} })
 
 async function readCatalog(env) {
@@ -175,7 +171,6 @@ async function writeCatalog(env, catalog) {
   if (!r.ok) throw new Error('catalog write failed: ' + r.status + ' ' + await r.text())
 }
 
-// ---------- handlers ----------
 async function handleUpload(req, env, claims, origin) {
   const body = await req.json().catch(() => null)
   if (!body) return json({ error: 'invalid json' }, 400, origin)
@@ -251,7 +246,6 @@ async function handleCatalog(req, env, origin) {
   return json(catalog, 200, origin)
 }
 
-// ---------- entry ----------
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url)
