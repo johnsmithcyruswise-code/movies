@@ -9,7 +9,7 @@ export function openUploadDialog(onDone) {
       <div class="modal-head">
         <div class="m-info">
           <h2>Upload a film</h2>
-          <p>Uploads go straight to storage. It appears in search once you confirm.</p>
+          <p>Goes straight to storage. Appears in search once confirmed.</p>
         </div>
         <button class="btn-close" id="upClose">&times;</button>
       </div>
@@ -19,8 +19,8 @@ export function openUploadDialog(onDone) {
           <input id="upYear" type="number" placeholder="Year (optional)" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:14px;">
           <textarea id="upDesc" placeholder="Short description (optional)" rows="3" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:14px;resize:vertical;"></textarea>
           <input id="upFile" type="file" accept="video/*,audio/*" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:13px;">
-          <div id="upProgress" style="font-size:12px;color:var(--muted);min-height:16px;"></div>
-          <button id="upGo" style="padding:13px;border-radius:60px;border:none;cursor:pointer;font-weight:600;color:#fff;background:var(--a-grad);font-size:14px;">Upload</button>
+          <div id="upProgress" style="font-size:12px;color:#999;min-height:16px;"></div>
+          <button id="upGo" style="padding:13px;border-radius:60px;border:none;cursor:pointer;font-weight:600;color:#1a1205;background:linear-gradient(135deg,#f59e0b,#f97316,#facc15);font-size:14px;">Upload</button>
         </div>
       </div>
     </div>`
@@ -54,7 +54,7 @@ export function openUploadDialog(onDone) {
       if (!presignRes.ok) throw new Error('presign failed: ' + await presignRes.text())
       const { uploadUrl, movieId, objectKey, publicUrl } = await presignRes.json()
 
-      prog.textContent = 'Uploading to storage…'
+      prog.textContent = 'Uploading…'
       const xhr = new XMLHttpRequest()
       await new Promise((resolve, reject) => {
         xhr.upload.onprogress = e => {
