@@ -1,4 +1,3 @@
-// upload.js
 import { getAccessToken } from './auth.js'
 import { WORKER_URL } from './supabase-config.js'
 
@@ -10,7 +9,7 @@ export function openUploadDialog(onDone) {
       <div class="modal-head">
         <div class="m-info">
           <h2>Upload a film</h2>
-          <p>The file goes straight to R2. It appears in search once you confirm.</p>
+          <p>Uploads go straight to storage. It appears in search once you confirm.</p>
         </div>
         <button class="btn-close" id="upClose">&times;</button>
       </div>
@@ -33,11 +32,11 @@ export function openUploadDialog(onDone) {
 
   overlay.querySelector('#upGo').onclick = async () => {
     const title = overlay.querySelector('#upTitle').value.trim()
-    const year = overlay.querySelector('#upYear').value.trim()
-    const desc = overlay.querySelector('#upDesc').value.trim()
-    const file = overlay.querySelector('#upFile').files[0]
-    const prog = overlay.querySelector('#upProgress')
-    const btn = overlay.querySelector('#upGo')
+    const year  = overlay.querySelector('#upYear').value.trim()
+    const desc  = overlay.querySelector('#upDesc').value.trim()
+    const file  = overlay.querySelector('#upFile').files[0]
+    const prog  = overlay.querySelector('#upProgress')
+    const btn   = overlay.querySelector('#upGo')
 
     if (!title || !file) { prog.textContent = 'Title and file are required.'; return }
 
@@ -55,14 +54,14 @@ export function openUploadDialog(onDone) {
       if (!presignRes.ok) throw new Error('presign failed: ' + await presignRes.text())
       const { uploadUrl, movieId, objectKey, publicUrl } = await presignRes.json()
 
-      prog.textContent = 'Uploading to R2…'
+      prog.textContent = 'Uploading to storage…'
       const xhr = new XMLHttpRequest()
       await new Promise((resolve, reject) => {
         xhr.upload.onprogress = e => {
           if (e.lengthComputable) prog.textContent = `Uploading… ${Math.round(e.loaded / e.total * 100)}%`
         }
-        xhr.onload = () => xhr.status < 300 ? resolve() : reject(new Error('R2 PUT ' + xhr.status))
-        xhr.onerror = () => reject(new Error('R2 network error'))
+        xhr.onload = () => xhr.status < 300 ? resolve() : reject(new Error('storage PUT ' + xhr.status))
+        xhr.onerror = () => reject(new Error('storage network error'))
         xhr.open('PUT', uploadUrl)
         xhr.setRequestHeader('Content-Type', file.type)
         xhr.send(file)
