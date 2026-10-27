@@ -1,13 +1,11 @@
-// unified-search.js
 import { WORKER_URL } from './supabase-config.js'
 
-// ---------- source adapters ----------
 async function searchArchive(query, page, size) {
   const q = '(' + query + ') AND mediatype:(movies)'
   const url = 'https://archive.org/advancedsearch.php' +
     '?q=' + encodeURIComponent(q) +
     '&fl[]=identifier&fl[]=title&fl[]=year&fl[]=description&fl[]=downloads' +
-    '&sort[]=downloads+desc&rows=' + (size*3) + '&page=1&output=json'
+    '&sort[]=downloads+desc&rows=' + (size * 3) + '&page=1&output=json'
   try {
     const r = await fetch(url)
     if (!r.ok) return []
@@ -20,8 +18,11 @@ async function searchArchive(query, page, size) {
       year: d.year || null,
       description: Array.isArray(d.description) ? d.description.join(' ') : (d.description || ''),
       posterUrl: 'https://archive.org/services/img/' + d.identifier,
+      streamUrls: [],
+      downloadUrls: [],
       popularity: Math.min(1, (d.downloads || 0) / 100000),
       verified: false,
+      archiveId: d.identifier,
     }))
   } catch { return [] }
 }
@@ -41,16 +42,17 @@ async function searchR2(query, page, size) {
       title: m.title,
       year: m.year,
       description: m.description,
-      posterUrl: null,
-      streamUrl: m.streamUrl,
-      popularity: 0.5,
+      posterUrl: m.posterUrl,
+      streamUrls: m.streamUrls || [],
+      downloadUrls: m.downloadUrls || [],
+      popularity: m.popularity || 0.5,
       verified: true,
       uploadedAt: m.uploadedAt,
+      fileKey: m.fileKey,
     }))
   } catch { return [] }
 }
 
-// ---------- merge, dedupe, rank ----------
 function fingerprint(doc) {
   return (doc.title || '').toLowerCase().replace(/\W+/g, '') + '|' + (doc.year || '')
 }
@@ -74,7 +76,6 @@ function rankAndDedupe(docs) {
   return [...byFp.values()].sort((a, b) => score(b) - score(a))
 }
 
-// ---------- public API ----------
 export async function unifiedSearch(query, page, pageSize) {
   page = page || 1
   pageSize = pageSize || 30
