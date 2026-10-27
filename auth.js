@@ -1,4 +1,3 @@
-// auth.js
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './supabase-config.js'
 
 let _supabase = null
@@ -45,5 +44,4 @@ export async function getAccessToken() {
 
 export function onAuthChange(fn) {
   _listeners.push(fn)
-  if (_session !== undefined) fn(_session)
 }
