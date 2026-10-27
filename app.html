@@ -43,7 +43,6 @@ body.modal-open{overflow:hidden;position:fixed;width:100%;}
 button{font-family:inherit;} img{display:block;max-width:100%;}
 :focus-visible{outline:2px solid var(--a2);outline-offset:3px;border-radius:6px;}
 
-/* ============ VIDEO BUFFERING LOADER ============ */
 .vp-loader{
   position:absolute;inset:0;z-index:6;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
@@ -69,7 +68,6 @@ button{font-family:inherit;} img{display:block;max-width:100%;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes spin-rev{to{transform:translate(-35%,-50%) rotate(-360deg);}}
 
-/* ============ MAIN APP ============ */
 .app{display:flex;min-height:100vh;padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px));
   opacity:0;transition:opacity .6s ease .2s;}
 .app.reveal{opacity:1;}
@@ -576,7 +574,6 @@ button{font-family:inherit;} img{display:block;max-width:100%;}
   "use strict";
   var $ = function(id){ return document.getElementById(id); };
 
-  /* App enters directly — no splash, no page loader */
   var app = $('app');
   if(app) app.classList.add('reveal');
 
@@ -704,7 +701,7 @@ button{font-family:inherit;} img{display:block;max-width:100%;}
       latestGrid=$("latestGrid"), recommendGrid=$("recommendGrid"),
       cinema=$("cinema"), cinemaStage=$("cinemaStage"), cinemaBack=$("cinemaBack"), cinemaTitle=$("cinemaTitle");
 
-  /* ⚠️ WORKER_URL — change BOTH here and in supabase-config.js to match */
+  /* WORKER_URL — must match supabase-config.js */
   var WORKER_URL = 'https://fylm.johnsmithcyruswise.workers.dev';
   var state = { query:"", category:"", page:1, pageSize:30, hasMore:false, requestSeq:0,
     modalItem:null, sources:[], lastFocused:null, scrollY:0, typeTimer:null, homeLoaded:false,
@@ -864,6 +861,13 @@ button{font-family:inherit;} img{display:block;max-width:100%;}
     }).finally(function(){ if(mySeq === state.requestSeq) submit.disabled = false; });
   }
 
+  /* ====== VIDEO SOURCE FIX ======
+     Only ever build sources from REAL video files.
+     Skips thumbnail/metadata/json/xml entries that cause "Source not found". */
+  function isPlayableVideo(name){
+    return /\.(mp4|m4v|webm|ogv|ogm|mkv|mov|avi)$/i.test(name);
+  }
+
   function openDetails(doc, title, desc, openerEl){
     state.lastFocused = openerEl || document.activeElement; state.modalItem = doc;
     mTitle.textContent = title; mDesc.textContent = desc || "Public-domain film from the Internet Archive.";
@@ -874,32 +878,63 @@ button{font-family:inherit;} img{display:block;max-width:100%;}
     filmModal.classList.add("open"); filmModal.setAttribute("aria-hidden","false");
     setTimeout(function(){ mClose.focus(); }, 50);
     try { history.pushState({modal:true}, ""); } catch(e) {}
-    fetch("https://archive.org/metadata/"+encodeURIComponent(doc.identifier))
+
+    fetch("https://archive.org/metadata/" + encodeURIComponent(doc.identifier))
       .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
       .then(function(meta){
         var files = (meta && meta.files) || []; if(!Array.isArray(files)) files = [];
-        var media = files.filter(function(f){ return f.name && (isVideo(f.name) || isAudio(f.name)); });
-        media.sort(function(a,b){ var av=isVideo(a.name)?0:1,bv=isVideo(b.name)?0:1; if(av!==bv) return av-bv; return (Number(b.size)||0)-(Number(a.size)||0); });
-        var sources;
-        if(media.length){
-          sources = media.map(function(f){ var base="https://archive.org/download/"+encodeURIComponent(doc.identifier)+"/"+encodeURIComponent(f.name);
-            return { name:f.name, size:Number(f.size)||0, video:isVideo(f.name), audio:isAudio(f.name), url:base, downloadUrl:base, playable:true, label: (f.name.split('.').pop()||'').toUpperCase() }; });
-        } else {
-          var all = files.filter(function(f){ return f.name && !/\.(xml|json|torrent|sqlite)$/i.test(f.name); });
-          if(!all.length){ playerStage.innerHTML = '<div style="color:#999;padding:40px;text-align:center;">No files available.</div>'; return; }
+
+        /* Step 1: strict video files (playable formats) */
+        var videoFiles = files.filter(function(f){
+          return f.name && isPlayableVideo(f.name);
+        });
+        /* Sort: biggest first (usually the main film) */
+        videoFiles.sort(function(a,b){ return (Number(b.size)||0) - (Number(a.size)||0); });
+
+        /* Step 2: if no playable video found, fall back to archive's own derivative listing */
+        if(!videoFiles.length){
+          var all = files.filter(function(f){ return f.name && !/\.(xml|json|torrent|sqlite|jpg|jpeg|png|gif|webp|bmp|tif|tiff)$/i.test(f.name); });
           all.sort(function(a,b){ return (Number(b.size)||0)-(Number(a.size)||0); });
-          sources = all.map(function(f){ var base="https://archive.org/download/"+encodeURIComponent(doc.identifier)+"/"+encodeURIComponent(f.name);
-            return { name:f.name, size:Number(f.size)||0, video:false, audio:false, url:base, downloadUrl:base, playable:false }; });
+          if(!all.length){
+            playerStage.innerHTML = '<div style="color:#999;padding:40px;text-align:center;">No files available for this item.</div>';
+            filesTitle.textContent = "No files";
+            return;
+          }
+          state.sources = all.map(function(f){
+            var base = "https://archive.org/download/" + encodeURIComponent(doc.identifier) + "/" + encodeURIComponent(f.name);
+            return { name:f.name, size:Number(f.size)||0, video:false, audio:false, url:base, downloadUrl:base, playable:false };
+          });
           filesTitle.textContent = "All files (download only)";
+          buildSourceBar([]);
+          renderFiles(state.sources);
+          toast("No playable video for this item — download only", "error");
+          return;
         }
-        state.sources = sources; buildSourceBar(sources); renderFiles(sources);
-        var first = sources.findIndex(function(s){ return s.playable; });
-        if(first >= 0) selectSource(first);
-      }).catch(function(){
-        playerStage.innerHTML = '<div style="color:#999;padding:40px;text-align:center;">Could not load files.</div>';
+
+        /* Step 3: build sources from real video files only */
+        state.sources = videoFiles.map(function(f){
+          var base = "https://archive.org/download/" + encodeURIComponent(doc.identifier) + "/" + encodeURIComponent(f.name);
+          return {
+            name: f.name,
+            size: Number(f.size) || 0,
+            video: true, audio: false,
+            url: base,
+            downloadUrl: base,
+            playable: true,
+            label: (f.name.split('.').pop() || '').toUpperCase()
+          };
+        });
+
+        buildSourceBar(state.sources);
+        renderFiles(state.sources);
+        selectSource(0);
+      }).catch(function(err){
+        console.error("Metadata fetch failed:", err);
+        playerStage.innerHTML = '<div style="color:#999;padding:40px;text-align:center;">Could not load files for this item.</div>';
         toast("Could not load this item", "error");
       });
   }
+
   function openCommunityFilm(m){
     state.lastFocused = document.activeElement; state.modalItem = { title: m.title, identifier: null };
     mTitle.textContent = m.title || 'Untitled';
