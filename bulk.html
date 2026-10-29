@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fylm Bulk Import</title>
+<style>
+  :root{--bg:#0d0a08;--card:#1a130c;--line:rgba(255,255,255,.09);--text:#fff;--muted:rgba(255,255,255,.55);--a1:#f59e0b;--a2:#f97316;--ok:#4ade80;--bad:#ff6b81;--warn:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;}
+  body{background:radial-gradient(ellipse 60% 40% at 15% 0%,rgba(249,115,22,.16),transparent 60%),var(--bg);color:var(--text);min-height:100vh;padding:20px 16px 60px;}
+  .wrap{max-width:1100px;margin:0 auto;}
+  h1{font-size:22px;margin-bottom:4px;background:linear-gradient(135deg,#fff,#fde68a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:18px;line-height:1.6;}
+  .sub b{color:#fdba74;}
+  textarea{width:100%;height:200px;resize:vertical;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:13px;font-family:ui-monospace,Consolas,monospace;outline:none;}
+  textarea:focus{border-color:rgba(249,115,22,.55);}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0;}
+  button,.btn{border:none;cursor:pointer;padding:10px 20px;border-radius:60px;font-size:13px;font-weight:600;color:#1a1205;background:linear-gradient(135deg,var(--a1),var(--a2));}
+  button.ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line);}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+  label.opt{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  input[type=number],input[type=text],input[type=password],select{padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:13px;outline:none;}
+  input[type=number]{width:90px;}
+  .bar{height:8px;border-radius:8px;background:rgba(255,255,255,.07);overflow:hidden;margin:10px 0 6px;}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .2s;}
+  .stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;}
+  .chip{font-size:12px;padding:6px 12px;border-radius:40px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted);}
+  .chip b{color:var(--text);}
+  .chip.ok b{color:var(--ok);} .chip.bad b{color:var(--bad);} .chip.warn b{color:var(--warn);}
+  .panel{display:none;} .panel.show{display:block;}
+  .tablewrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .scroller{max-height:560px;overflow:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{position:sticky;top:0;background:#241a0e;text-align:left;padding:10px;color:var(--muted);font-weight:600;z-index:1;}
+  td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:middle;}
+  tr.off{opacity:.5;}
+  td img{width:34px;height:50px;object-fit:cover;border-radius:5px;background:#222;display:block;}
+  .tag{font-size:11px;padding:3px 9px;border-radius:30px;background:rgba(249,115,22,.15);color:#fdba74;white-space:nowrap;}
+  .st-ok{color:var(--ok);} .st-bad{color:var(--bad);} .st-mid{color:var(--warn);}
+  .log{font-size:12px;color:var(--muted);line-height:1.7;margin-top:6px;}
+  .log code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;font-size:11.5px;}
+  .hint{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:8px;}
+  @media(max-width:640px){ .hide-sm{display:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fylm Bulk Import</h1>
+  <p class="sub">
+    Paste any mix of <b>archive.org</b> links (item pages, direct file URLs, bare IDs) and <b>direct video URLs</b> from any host (<code>.mp4</code>, <code>.webm</code>, <code>.mkv</code>, <code>.mov</code>, etc). The tool deduplicates, checks every item, enriches missing posters from TMDB, sorts by genre and decade, and pushes the good ones to your catalog.
+  </p>
+
+  <textarea id="input" placeholder="https://archive.org/details/night_of_the_living_dead
+https://archive.org/details/his_girl_friday
+nosferatu
+https://example.com/pd-films/the-general.mp4
+https://otherhost.org/modern-times.webm
+archive.org/details/feature_films   (a whole collection works too)" spellcheck="false"></textarea>
+
+  <div class="row">
+    <button id="scanBtn">Scan links</button>
+    <button id="stopBtn" class="ghost" disabled>Stop</button>
+    <label class="opt"><input type="checkbox" id="expand" checked> Expand collections, up to</label>
+    <input type="number" id="expandMax" value="300" min="10" max="2000">
+    <label class="opt">items each</label>
+    <label class="opt"><input type="checkbox" id="enrich" checked> Enrich posters from TMDB</label>
+  </div>
+
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="log" id="log">Ready.</div>
+  <div class="stats" id="stats"></div>
+
+  <div class="panel" id="results">
+    <div class="row">
+      <input type="text" id="filterText" placeholder="Filter by title…">
+      <select id="filterGenre"><option value="">All genres</option></select>
+      <select id="filterDecade"><option value="">All decades</option></select>
+      <label class="opt"><input type="checkbox" id="onlyReady" checked> Only ready items</label>
+      <button class="ghost" id="selAll">Select shown</button>
+      <button class="ghost" id="selNone">Clear</button>
+    </div>
+
+    <div class="tablewrap"><div class="scroller">
+      <table>
+        <thead><tr><th></th><th></th><th>Title</th><th>Year</th><th class="hide-sm">Genre</th><th class="hide-sm">Size</th><th>Status</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div></div>
+
+    <div class="row" style="margin-top:16px;">
+      <button id="dlJson">Download selected as JSON</button>
+      <button class="ghost" id="copyJson">Copy JSON</button>
+    </div>
+
+    <div class="row">
+      <input type="text" id="workerUrl" value="https://flym.johnsmithcyruswise.workers.dev" style="flex:1;min-width:220px;">
+      <input type="password" id="token" placeholder="Admin token" style="width:230px;">
+      <button id="sendBtn">Send selected to worker</button>
+    </div>
+    <p class="hint">Posts batches of 100 to <code>/bulk-add</code>. Paste your <code>ADMIN_TOKEN</code> (the 64-char hex you set in Cloudflare Secrets). Never commit it anywhere.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const fmtBytes = n => { n = Number(n)||0; if(n < 1024) return n+" B"; const u=["KB","MB","GB"]; let i=-1; do{ n/=1024; i++; }while(n>=1024 && i<2); return n.toFixed(n<10?1:0)+" "+u[i]; };
+
+let items = [];
+let stopFlag = false;
+
+/* ============ LINK PARSING ============ */
+const VIDEO_EXT = /\.(mp4|m4v|webm|ogv|mkv|mov|avi|mpg|mpeg)(\?|#|$)/i;
+
+function parseInput(text){
+  const archiveIds = new Set();
+  const directFiles = new Set();
+  const unknown = [];
+
+  // 1. archive.org item-page URLs → IDs
+  const archiveRe = /archive\.org\/(?:details|metadata|embed|stream)\/([A-Za-z0-9][A-Za-z0-9._-]*)/gi;
+  let m;
+  while ((m = archiveRe.exec(text))) archiveIds.add(m[1]);
+
+  // 2. archive.org/download/... (file URL) → keep as direct file
+  const archiveFileRe = /archive\.org\/download\/[A-Za-z0-9][A-Za-z0-9._\-\/]*\.(?:mp4|m4v|webm|ogv|mkv|mov|avi|mpg|mpeg)/gi;
+  while ((m = archiveFileRe.exec(text))) directFiles.add(m[0]);
+
+  // 3. Split tokens, classify each
+  text.split(/[\s,;]+/).forEach(t => {
+    if (!t) return;
+    t = t.trim();
+    if (!t) return;
+
+    // URL?
+    if (/^https?:\/\//i.test(t)) {
+      // Direct video file
+      if (VIDEO_EXT.test(t)) { directFiles.add(t); return; }
+      // Archive page — already captured above
+      if (/archive\.org\//i.test(t)) return;
+      // Anything else (Vimeo, YouTube, random HTML page)
+      unknown.push(t);
+      return;
+    }
+
+    // Bare archive ID (has at least one alphanum/underscore/dash, length 3+)
+    if (/^[A-Za-z0-9][A-Za-z0-9._-]{2,}$/.test(t)) {
+      archiveIds.add(t);
+    } else {
+      unknown.push(t);
+    }
+  });
+
+  return { archiveIds: [...archiveIds], directFiles: [...directFiles], unknown };
+}
+
+/* ============ NETWORK ============ */
+async function fetchJSON(url, tries = 3){
+  for(let t = 0; t < tries; t++){
+    try{
+      const r = await fetch(url);
+      if(r.status === 429 || r.status >= 500){ await sleep(900 * (t+1)); continue; }
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return await r.json();
+    }catch(e){
+      if(t === tries - 1) throw e;
+      await sleep(500 * (t+1));
+    }
+  }
+  throw new Error("Rate limited");
+}
+async function pool(list, n, fn){
+  let i = 0;
+  await Promise.all(Array.from({length:n}, async () => {
+    while(i < list.length && !stopFlag){ const k = i++; await fn(list[k], k); }
+  }));
+}
+
+/* ============ TMDB ENRICH (via worker) ============ */
+const tmdbCache = new Map();
+async function tmdbLookup(title, year, workerUrl){
+  const key = (title || '').toLowerCase().trim();
+  if(!key) return null;
+  if(tmdbCache.has(key)) return tmdbCache.get(key);
+  try{
+    const r = await fetch(workerUrl + '/tmdb/search?q=' + encodeURIComponent(title));
+    if(!r.ok){ tmdbCache.set(key, null); return null; }
+    const data = await r.json();
+    if(!data || !data.docs || !data.docs.length){ tmdbCache.set(key, null); return null; }
+    let best = data.docs[0];
+    if(year){
+      const match = data.docs.find(d => String(d.year) === String(year));
+      if(match) best = match;
+    }
+    tmdbCache.set(key, best);
+    return best;
+  }catch(e){
+    tmdbCache.set(key, null);
+    return null;
+  }
+}
+
+/* ============ GENRE / SORT HELPERS ============ */
+const GENRES = [
+  ["Horror", /horror|monster|zombie|vampire|ghost|frankenstein|dracula|haunted/i],
+  ["Sci-Fi", /sci-?fi|science fiction|space|alien|robot/i],
+  ["Western", /western|cowboy|outlaw/i],
+  ["Film Noir", /noir|crime|detective|gangster|mystery/i],
+  ["Comedy", /comed|slapstick|funny|farce/i],
+  ["Romance", /romanc|love story/i],
+  ["War", /\bwar\b|wwii|world war|military/i],
+  ["Musical", /music|concert|musical|jazz/i],
+  ["Documentary", /documentar|newsreel|educational|nature|travel/i],
+  ["Drama", /drama/i]
+];
+function guessGenre(title, subjects, desc, collections){
+  const colls = (collections || []).join(" ");
+  if(/animationandcartoons/i.test(colls)) return "Animation";
+  const hay = (title + " " + (subjects || []).slice(0,5).join(" ") + " " + (desc || "").slice(0, 300));
+  for(const [g, re] of GENRES) if(re.test(hay)) return g;
+  if(/classic_tv/i.test(colls)) return "Classic TV";
+  if(/silent_films/i.test(colls)) return "Silent";
+  return "Other";
+}
+const arr = v => v == null ? [] : (Array.isArray(v) ? v : [v]);
+const extOf = n => (n.split(".").pop() || "").toLowerCase();
+const RANK = { mp4:0, m4v:1, webm:2, ogv:3 };
+const MIME = {
+  mp4:"video/mp4", m4v:"video/mp4", webm:"video/webm", ogv:"video/ogg",
+  mkv:"video/x-matroska", mov:"video/quicktime", avi:"video/x-msvideo",
+  mpg:"video/mpeg", mpeg:"video/mpeg"
+};
+function guessMime(filename){ return MIME[extOf(filename)] || "video/mp4"; }
+
+/* ============ INSPECT ONE ARCHIVE ITEM ============ */
+async function inspect(id){
+  let data;
+  try{ data = await fetchJSON("https://archive.org/metadata/" + encodeURIComponent(id)); }
+  catch(e){ return { id, status:"error", note:"Network error" }; }
+  if(!data || !data.metadata) return { id, status:"missing", note:"Not found" };
+  const md = data.metadata;
+  const title = (arr(md.title)[0] || id).toString().trim();
+  if(md.mediatype === "collection") return { id, status:"collection", title };
+  if(data.is_dark || String(md["access-restricted-item"]) === "true") return { id, title, status:"restricted", note:"Restricted/lending only" };
+  if(md.mediatype !== "movies") return { id, title, status:"notmovie", note:"Not a video item" };
+
+  const files = (data.files || []).filter(f => f.name && (extOf(f.name) in RANK));
+  if(!files.length) return { id, title, status:"noplay", note:"No browser-playable video" };
+  files.sort((a,b) => RANK[extOf(a.name)] - RANK[extOf(b.name)] || (Number(b.size)||0) - (Number(a.size)||0));
+  const best = files[0];
+
+  const subjects = arr(md.subject).map(String);
+  const colls = arr(md.collection).map(String);
+  const desc = arr(md.description).join(" ").replace(/<[^>]+>/g, " ");
+  const year = String(arr(md.year)[0] || arr(md.date)[0] || "").slice(0,4);
+  const y = parseInt(year, 10);
+  const base = "https://archive.org/download/" + encodeURIComponent(id) + "/";
+  return {
+    id, title, status:"ready", year: isNaN(y) ? "" : String(y),
+    decade: isNaN(y) ? "Unknown" : (Math.floor(y/10)*10) + "s",
+    genre: guessGenre(title, subjects, desc, colls),
+    silent: colls.indexOf("silent_films") !== -1,
+    description: desc.trim().slice(0, 600),
+    posterUrl: "https://archive.org/services/img/" + encodeURIComponent(id),
+    sizeBytes: Number(best.size) || 0,
+    streamUrls: [{ url: base + encodeURIComponent(best.name), type: MIME[extOf(best.name)], quality: extOf(best.name) }],
+    selected: true,
+    external: false
+  };
+}
+
+/* ============ BUILD ITEM FROM DIRECT URL ============ */
+function itemFromDirectUrl(url){
+  const filename = decodeURIComponent(url.split("/").pop().split("?")[0]);
+  const cleanTitle = filename.replace(/\.[^.]+$/, "").replace(/[._+]+/g, " ").replace(/\s+/g, " ").trim();
+  return {
+    id: url,
+    title: cleanTitle || filename,
+    status: "ready",
+    year: "",
+    decade: "Unknown",
+    genre: "Other",
+    description: "",
+    posterUrl: "",
+    sizeBytes: 0,
+    streamUrls: [{ url, type: guessMime(filename), quality: extOf(filename) }],
+    selected: true,
+    external: true
+  };
+}
+
+/* ============ MAIN SCAN ============ */
+async function scan(){
+  const parsed = parseInput($("input").value);
+  const { archiveIds, directFiles, unknown } = parsed;
+  const total = archiveIds.length + directFiles.length;
+
+  if(!total && !unknown.length){
+    $("log").textContent = "No links found.";
+    return;
+  }
+
+  stopFlag = false;
+  items = [];
+  $("scanBtn").disabled = true;
+  $("stopBtn").disabled = false;
+  $("results").classList.remove("show");
+
+  const workerUrl = $("workerUrl").value.replace(/\/+$/, "");
+
+  // 1. Direct files — no lookup needed
+  directFiles.forEach(url => {
+    items.push(itemFromDirectUrl(url));
+  });
+
+  // 2. Unknown — flag them
+  unknown.forEach(u => {
+    items.push({
+      id: u, title: u.slice(0, 80), status: "noplay",
+      note: "Not a direct video URL — paste the .mp4/.webm link instead",
+      selected: false
+    });
+  });
+
+  // 3. Archive items — metadata lookup
+  const seen = new Set(archiveIds);
+  let pending = archiveIds.slice();
+  let done = directFiles.length;
+  const expandOn = $("expand").checked;
+  const expandMax = Math.max(10, Number($("expandMax").value) || 300);
+  const TOTAL_EXPAND_CAP = 2000;
+  let expandedCount = 0;
+
+  while(pending.length && !stopFlag){
+    const batch = pending; pending = [];
+    const collections = [];
+    await pool(batch, 6, async id => {
+      const r = await inspect(id);
+      done++;
+      if(r.status === "collection") collections.push(r); else items.push(r);
+      $("barFill").style.width = Math.min(100, done / Math.max(1,total) * 100) + "%";
+      $("log").textContent = "Checked " + done + " / " + total + " · " + items.filter(x => x.status === "ready").length + " playable so far";
+    });
+    if(expandOn){
+      for(const c of collections){
+        if(stopFlag) break;
+        if(expandedCount >= TOTAL_EXPAND_CAP) break;
+        await sleep(300);
+        $("log").textContent = "Expanding collection: " + c.title + " …";
+        try{
+          const q = "collection:(" + c.id + ") AND mediatype:(movies)";
+          const d = await fetchJSON("https://archive.org/advancedsearch.php?q=" + encodeURIComponent(q) +
+            "&fl[]=identifier&sort[]=downloads+desc&rows=" + expandMax + "&output=json");
+          const docs = (d.response && d.response.docs) || [];
+          const take = Math.min(docs.length, expandMax, TOTAL_EXPAND_CAP - expandedCount);
+          docs.slice(0, take).forEach(x => {
+            if(x.identifier && !seen.has(x.identifier)){ seen.add(x.identifier); pending.push(x.identifier); expandedCount++; }
+          });
+        }catch(e){}
+      }
+    } else {
+      collections.forEach(c => items.push({ id:c.id, title:c.title, status:"collection", note:"Collection (expansion off)" }));
+    }
+  }
+
+  // 4. Dedupe by title+year
+  const keys = new Set();
+  items.forEach(it => {
+    if(it.status !== "ready") return;
+    const k = (it.title || "").toLowerCase().replace(/[^a-z0-9]/g, "") + "|" + (it.year || "");
+    if(keys.has(k)){ it.status = "duplicate"; it.note = "Same title/year already in list"; it.selected = false; }
+    else keys.add(k);
+  });
+
+  // 5. TMDB enrichment for items missing posters
+  if($("enrich").checked){
+    const toEnrich = items.filter(it => it.status === "ready" && !it.posterUrl && it.title);
+    if(toEnrich.length){
+      $("log").textContent = "Enriching " + toEnrich.length + " posters from TMDB…";
+      // Budget: 8 req/10s
+      for(let i = 0; i < toEnrich.length; i += 8){
+        if(stopFlag) break;
+        const chunk = toEnrich.slice(i, i + 8);
+        await Promise.all(chunk.map(async it => {
+          const t = await tmdbLookup(it.title, it.year, workerUrl);
+          if(t){
+            it.posterUrl = t.posterUrl || it.posterUrl;
+            if(!it.description) it.description = t.description || "";
+            it.voteAverage = t.voteAverage;
+          }
+        }));
+        $("log").textContent = "Enriched " + Math.min(i + 8, toEnrich.length) + " / " + toEnrich.length + " (TMDB)";
+        await sleep(1100); // 8 req per 10s is 1.25s apart; this is safer
+      }
+    }
+  }
+
+  $("scanBtn").disabled = false;
+  $("stopBtn").disabled = true;
+  $("barFill").style.width = "100%";
+  const ready = items.filter(x => x.status === "ready").length;
+  $("log").textContent = (stopFlag ? "Stopped. " : "Done. ") + ready + " playable films ready." +
+    (unknown.length ? " " + unknown.length + " link(s) need a direct video URL." : "") +
+    (expandedCount ? " Pulled " + expandedCount + " items from collections." : "");
+  buildFilters();
+  renderStats();
+  renderRows();
+  $("results").classList.add("show");
+}
+
+/* ============ RENDERING ============ */
+const STATUS_LABEL = {
+  ready:["Ready","st-ok"], duplicate:["Duplicate","st-mid"], noplay:["No playable file","st-bad"],
+  restricted:["Restricted","st-bad"], notmovie:["Not a video","st-bad"], missing:["Not found","st-bad"],
+  error:["Error","st-bad"], collection:["Collection","st-mid"]
+};
+
+function renderStats(){
+  const c = {}; items.forEach(i => c[i.status] = (c[i.status]||0) + 1);
+  const chip = (label, n, cls) => n ? '<span class="chip '+(cls||"")+'">'+label+' <b>'+n+'</b></span>' : "";
+  $("stats").innerHTML =
+    chip("Ready", c.ready, "ok") + chip("Duplicates", c.duplicate) +
+    chip("No playable file", c.noplay, "bad") + chip("Restricted", c.restricted, "bad") +
+    chip("Not video", c.notmovie, "bad") + chip("Not found", c.missing, "bad") + chip("Errors", c.error, "bad");
+}
+function buildFilters(){
+  const ready = items.filter(i => i.status === "ready" || i.status === "duplicate");
+  const genres = [...new Set(ready.map(i => i.genre).filter(Boolean))].sort();
+  const decades = [...new Set(ready.map(i => i.decade).filter(Boolean))].sort();
+  $("filterGenre").innerHTML = '<option value="">All genres</option>' + genres.map(g => '<option>'+esc(g)+'</option>').join("");
+  $("filterDecade").innerHTML = '<option value="">All decades</option>' + decades.map(d => '<option>'+esc(d)+'</option>').join("");
+}
+function shown(){
+  const t = $("filterText").value.trim().toLowerCase();
+  const g = $("filterGenre").value, d = $("filterDecade").value, only = $("onlyReady").checked;
+  return items.filter(i => {
+    if(only && i.status !== "ready") return false;
+    if(g && i.genre !== g) return false;
+    if(d && i.decade !== d) return false;
+    if(t && !(i.title||"").toLowerCase().includes(t)) return false;
+    return true;
+  });
+}
+function renderRows(){
+  const list = shown();
+  $("rows").innerHTML = list.map(i => {
+    const idx = items.indexOf(i), st = STATUS_LABEL[i.status] || [i.status,""];
+    const canPick = i.status === "ready" || i.status === "duplicate";
+    const stars = i.voteAverage ? ' <span style="color:#fde68a;font-size:11px;">★ '+Number(i.voteAverage).toFixed(1)+'</span>' : '';
+    return '<tr class="'+(canPick && i.selected ? "" : "off")+'">' +
+      '<td>'+(canPick ? '<input type="checkbox" data-i="'+idx+'" '+(i.selected?"checked":"")+'>' : "")+'</td>' +
+      '<td>'+(i.posterUrl ? '<img loading="lazy" src="'+esc(i.posterUrl)+'" alt="" onerror="this.style.display=\'none\'">' : "")+'</td>' +
+      '<td>'+esc(i.title||i.id)+stars+'<div style="font-size:11px;color:var(--muted);word-break:break-all;">'+esc(i.id.length>60?i.id.slice(0,60)+'…':i.id)+'</div></td>' +
+      '<td>'+esc(i.year||"")+'</td>' +
+      '<td class="hide-sm">'+(i.genre ? '<span class="tag">'+esc(i.genre)+'</span>' : "")+'</td>' +
+      '<td class="hide-sm">'+(i.sizeBytes ? fmtBytes(i.sizeBytes) : "")+'</td>' +
+      '<td class="'+st[1]+'">'+st[0]+(i.note && i.status !== "ready" ? '<div style="font-size:11px;color:var(--muted)">'+esc(i.note)+'</div>' : "")+'</td></tr>';
+  }).join("") || '<tr><td colspan="7" style="padding:24px;text-align:center;color:var(--muted)">Nothing matches.</td></tr>';
+}
+
+/* ============ OUTPUT ============ */
+function selectedMovies(){
+  return items
+    .filter(i => i.selected && (i.status === "ready" || i.status === "duplicate"))
+    .map(i => ({
+      title: i.title,
+      year: i.year || null,
+      description: i.description || "",
+      posterUrl: i.posterUrl || null,
+      streamUrls: i.streamUrls,
+      sizeBytes: i.sizeBytes || 0,
+      genre: i.genre || null,
+      decade: i.decade || null,
+      silent: !!i.silent,
+      voteAverage: i.voteAverage || null,
+      source: i.external ? "external" : "archive.org",
+      identifier: i.external ? null : i.id,
+      uploadedAt: Date.now(),
+    }));
+}
+function toast(msg){ $("log").textContent = msg; }
+
+/* ============ EVENTS ============ */
+$("scanBtn").onclick = scan;
+$("stopBtn").onclick = () => { stopFlag = true; };
+["filterText","filterGenre","filterDecade","onlyReady"].forEach(id => $(id).addEventListener("input", renderRows));
+$("rows").addEventListener("change", e => {
+  const i = e.target.dataset && e.target.dataset.i;
+  if(i != null){ items[i].selected = e.target.checked; e.target.closest("tr").classList.toggle("off", !e.target.checked); }
+});
+$("selAll").onclick = () => { shown().forEach(i => { if(i.status === "ready" || i.status === "duplicate") i.selected = true; }); renderRows(); };
+$("selNone").onclick = () => { items.forEach(i => i.selected = false); renderRows(); };
+$("dlJson").onclick = () => {
+  const m = selectedMovies(); if(!m.length) return toast("Nothing selected.");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({ movies: m }, null, 2)], { type:"application/json" }));
+  a.download = "fylm-bulk-import.json"; a.click();
+  toast("Downloaded " + m.length + " films.");
+};
+$("copyJson").onclick = async () => {
+  const m = selectedMovies(); if(!m.length) return toast("Nothing selected.");
+  try{ await navigator.clipboard.writeText(JSON.stringify({ movies: m }, null, 2)); toast("Copied " + m.length + " films."); }
+  catch(e){ toast("Copy blocked by the browser. Use the download button."); }
+};
+$("sendBtn").onclick = async () => {
+  const m = selectedMovies(); if(!m.length) return toast("Nothing selected.");
+  const url = $("workerUrl").value.replace(/\/+$/, "") + "/bulk-add";
+  const token = $("token").value.trim();
+  if(!token){ toast("Paste your ADMIN_TOKEN first."); return; }
+  $("sendBtn").disabled = true;
+  let sent = 0, failed = 0;
+  try{
+    for(let i = 0; i < m.length; i += 100){
+      const batch = m.slice(i, i + 100);
+      let attempt = 0;
+      while(attempt < 2){
+        try{
+          const r = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+            body: JSON.stringify({ movies: batch })
+          });
+          if(!r.ok){
+            const txt = await r.text();
+            throw new Error("HTTP " + r.status + " — " + txt.slice(0, 200));
+          }
+          const data = await r.json();
+          sent += data.added || 0;
+          const skipped = data.skipped || 0;
+          toast("Sent " + sent + " / " + m.length + (skipped ? " (" + skipped + " duplicates skipped)" : ""));
+          break;
+        }catch(e){
+          attempt++;
+          if(attempt >= 2){ failed += batch.length; toast("Failed batch after " + sent + " films: " + e.message); }
+          else { await sleep(1500); }
+        }
+      }
+      await sleep(200);
+    }
+    toast("Done. Sent " + sent + " films." + (failed ? " Failed: " + failed + "." : ""));
+  }catch(e){
+    toast("Error: " + e.message);
+  }
+  $("sendBtn").disabled = false;
+};
+})();
+</script>
+</body>
+</html>
