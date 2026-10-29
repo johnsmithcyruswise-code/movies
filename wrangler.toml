@@ -4,3 +4,4 @@ compatibility_date = "2024-01-01"
 
 [vars]
 SUPABASE_JWKS_URL = "https://trftjobkyablbcmarbmr.supabase.co/auth/v1/.well-known/jwks.json"
+SUPABASE_ISSUER   = "https://trftjobkyablbcmarbmr.supabase.co/auth/v1"
