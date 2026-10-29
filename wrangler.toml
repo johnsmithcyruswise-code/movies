@@ -9,23 +9,4 @@ SUPABASE_ISSUER   = "https://trftjobkyablbcmarbmr.supabase.co/auth/v1"
 # ADMIN_TOKEN, TMDB_ACCESS_TOKEN, R2_SECRET_ACCESS_KEY,
 # R2_ACCESS_KEY_ID, R2_ACCOUNT_ID, R2_BUCKET
 # are configured as Secrets in the Cloudflare Dashboard.
-{
-  // ...
-  "observability": {
-    "logs": {
-      "enabled": true,
-      "head_sampling_rate": 1,
-      "invocation_logs": true,
-      "persist": true
-    },
-    "traces": {
-      "enabled": true,
-      "head_sampling_rate": 1,
-      "persist": true
-    },
-    "issue_detection": {
-      "enabled": true
-    }
-  },
-  // ...
-}
+
