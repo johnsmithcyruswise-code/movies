@@ -5,8 +5,4 @@ compatibility_date = "2024-01-01"
 [vars]
 SUPABASE_JWKS_URL = "https://trftjobkyablbcmarbmr.supabase.co/auth/v1/.well-known/jwks.json"
 SUPABASE_ISSUER   = "https://trftjobkyablbcmarbmr.supabase.co/auth/v1"
-
-# ADMIN_TOKEN, TMDB_ACCESS_TOKEN, R2_SECRET_ACCESS_KEY,
-# R2_ACCESS_KEY_ID, R2_ACCOUNT_ID, R2_BUCKET
-# are configured as Secrets in the Cloudflare Dashboard.
-
+R2_PUBLIC_URL     = "https://pub-YOUR-REAL-ID.r2.dev"
