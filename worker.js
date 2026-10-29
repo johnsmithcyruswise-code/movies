@@ -12,7 +12,7 @@
 
 const ALLOWED_ORIGINS = [
   'https://movies-eight-azure.vercel.app',
-  'https://fylm.vercel.app',
+  'https://fylm.johnsmithcyruswise.workers.dev/',
   'http://localhost:3000',
   'http://localhost:5173',
 ]
